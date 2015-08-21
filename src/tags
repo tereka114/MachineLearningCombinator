@@ -1,0 +1,306 @@
+!_TAG_FILE_FORMAT	2	/extended format; --format=1 will not append ;" to lines/
+!_TAG_FILE_SORTED	1	/0=unsorted, 1=sorted, 2=foldcase/
+!_TAG_PROGRAM_AUTHOR	Darren Hiebert	/dhiebert@users.sourceforge.net/
+!_TAG_PROGRAM_NAME	Exuberant Ctags	//
+!_TAG_PROGRAM_URL	http://ctags.sourceforge.net	/official site/
+!_TAG_PROGRAM_VERSION	5.8	//
+AverageLayer	Layer.py	/^class AverageLayer(object):$/;"	c
+BLENDING_FILES	config.py	/^BLENDING_FILES = [$/;"	v
+BLENDING_TEST_DIR	config.py	/^BLENDING_TEST_DIR = "test"$/;"	v
+BLENDING_TRAIN_DIR	config.py	/^BLENDING_TRAIN_DIR = "train"$/;"	v
+Boosting	Layer.py	/^class Boosting(object):$/;"	c
+Chainer3LayerNeuralNetwork	ChainerNeuralNetwork.py	/^class Chainer3LayerNeuralNetwork(ChainerNeuralNet):$/;"	c
+ChainerConvolutionalNeuralNetwork	ChainerNeuralNetwork.py	/^class ChainerConvolutionalNeuralNetwork(ChainerNeuralNet):$/;"	c
+ChainerNeuralNet	ChainerNeuralNetwork.py	/^class ChainerNeuralNet(object):$/;"	c
+ChainerNeuralNetwork	Util.py	/^import ChainerNeuralNetwork$/;"	i
+ClassificationLayer	Layer.py	/^class ClassificationLayer(Layer):$/;"	c
+ElasticNet	Util.py	/^from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet$/;"	i
+ExtraTreesRegressor	Util.py	/^from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor$/;"	i
+Function	ChainerNeuralNetwork.py	/^import chainer.functions as Function$/;"	i
+Gini	evaluation_functions.py	/^def Gini(expected, predicted):$/;"	f
+GradientBoostingRegressor	Util.py	/^from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor$/;"	i
+KFold	Util.py	/^from sklearn.cross_validation import KFold$/;"	i
+LasagneNeuralNetwork	Util.py	/^import LasagneNeuralNetwork$/;"	i
+Lasso	Util.py	/^from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet$/;"	i
+LassoLars	Util.py	/^from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet$/;"	i
+Layer	Layer.py	/^class Layer(object):$/;"	c
+Layer	boosting_prediction.py	/^import Layer$/;"	i
+Layer	boosting_result.py	/^import Layer$/;"	i
+Layer	data_visualization.py	/^import Layer$/;"	i
+LogisticRegression	Util.py	/^from sklearn.linear_model import LogisticRegression$/;"	i
+ManyRegressorBoosting	Layer.py	/^class ManyRegressorBoosting(object):$/;"	c
+MinimumRankingAverage	Layer.py	/^class MinimumRankingAverage(object):$/;"	c
+NeuralNetwork	ChainerNeuralNetwork.py	/^class NeuralNetwork(object):$/;"	c
+NeuralNetwork	LasagneNeuralNetwork.py	/^class NeuralNetwork(object):$/;"	c
+PCA	feature_vector.py	/^from sklearn.decomposition import PCA$/;"	i
+RandomForestClassifier	Util.py	/^from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor$/;"	i
+RandomForestRegressor	Util.py	/^from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor$/;"	i
+RandomForestRegressor	feature_vector.py	/^from sklearn.ensemble import RandomForestRegressor$/;"	i
+RegressionDecisionLayer	Layer.py	/^class RegressionDecisionLayer(Layer):$/;"	c
+RegressionFramework	Layer.py	/^class RegressionFramework(object):$/;"	c
+RegressionLayer	Layer.py	/^class RegressionLayer(Layer):$/;"	c
+Ridge	Util.py	/^from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet$/;"	i
+SLSQPResolver	Layer.py	/^class SLSQPResolver(object):$/;"	c
+SVR	Layer.py	/^from sklearn.svm import SVR$/;"	i
+SVR	Util.py	/^from sklearn.svm import SVR$/;"	i
+SVRRegressorBoosting	Layer.py	/^class SVRRegressorBoosting(Boosting):$/;"	c
+StackingFeature	StackingFeature.py	/^class StackingFeature(object):$/;"	c
+StackingLayer	Layer.py	/^class StackingLayer(Layer):$/;"	c
+T	LasagneNeuralNetwork.py	/^import theano.tensor as T$/;"	i
+Util	Layer.py	/^import Util$/;"	i
+Util	boosting_prediction.py	/^import Util$/;"	i
+Util	feature_vector.py	/^import Util$/;"	i
+Util	optimize.py	/^import Util$/;"	i
+XGBoost	Util.py	/^import XGBoost$/;"	i
+XGBoost	feature_vector.py	/^import XGBoost$/;"	i
+XGBoostClassifier	XGBoost.py	/^class XGBoostClassifier(XGBoostWrapper):$/;"	c
+XGBoostRegressor	XGBoost.py	/^class XGBoostRegressor(XGBoostWrapper):$/;"	c
+XGBoostWrapper	XGBoost.py	/^class XGBoostWrapper(object):$/;"	c
+__init__	ChainerNeuralNetwork.py	/^	def __init__(self):$/;"	m	class:ChainerConvolutionalNeuralNetwork
+__init__	ChainerNeuralNetwork.py	/^	def __init__(self):$/;"	m	class:NeuralNetwork
+__init__	ChainerNeuralNetwork.py	/^	def __init__(self,batch_size = 100,cuda=False,varbose=True,epoch=100,problem_type='classifier',layer1=784,layer2=784):$/;"	m	class:Chainer3LayerNeuralNetwork
+__init__	ChainerNeuralNetwork.py	/^	def __init__(self,batch_size = 100,cuda=False,varbose=True,epoch=100,problem_type='classifier',model=None,layer_param=[]):$/;"	m	class:ChainerNeuralNet
+__init__	LasagneNeuralNetwork.py	/^	def __init__(self):$/;"	m	class:NeuralNetwork
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:AverageLayer
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:ClassificationLayer
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:Layer
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:MinimumRankingAverage
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:RegressionDecisionLayer
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:RegressionFramework
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:RegressionLayer
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:SLSQPResolver
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:SVRRegressorBoosting
+__init__	Layer.py	/^	def __init__(self):$/;"	m	class:StackingLayer
+__init__	Layer.py	/^	def __init__(self,params):$/;"	m	class:Boosting
+__init__	Layer.py	/^	def __init__(self,params):$/;"	m	class:ManyRegressorBoosting
+__init__	StackingFeature.py	/^	def __init__(self):$/;"	m	class:StackingFeature
+__init__	XGBoost.py	/^    def __init__(self, num_boost_round=10, **params):$/;"	m	class:XGBoostClassifier
+__init__	XGBoost.py	/^    def __init__(self,num_boost_round=10, **params):$/;"	m	class:XGBoostRegressor
+__init__	XGBoost.py	/^    def __init__(self,num_boost_round=5, **params):$/;"	m	class:XGBoostWrapper
+accuracy	evaluation_functions.py	/^def accuracy(y_true,y_pred):$/;"	f
+accuracy_score	evaluation_functions.py	/^from sklearn.metrics import accuracy_score,log_loss,mean_squared_error$/;"	i
+blending_weight_optimize	Layer.py	/^def blending_weight_optimize(predictions,labels,function_name):$/;"	f
+chainer	ChainerNeuralNetwork.py	/^import chainer$/;"	i
+chainer	ChainerNeuralNetwork.py	/^import chainer.functions as Function$/;"	i
+concatArray	StackingFeature.py	/^	def concatArray(self,train,test,train_joint_array,test_joint_array):$/;"	m	class:StackingFeature
+config	Layer.py	/^import config$/;"	i
+config	boosting_result.py	/^import config$/;"	i
+config	optimize.py	/^import config$/;"	i
+config	parameter_turning.py	/^import config$/;"	i
+convert	StackingFeature.py	/^	def convert(self,train,test,mean_flag=True,std_flag=True,tsne_flag=True):$/;"	m	class:StackingFeature
+create_model	ChainerNeuralNetwork.py	/^	def create_model(self,input_size):$/;"	m	class:ChainerNeuralNet
+create_model	ChainerNeuralNetwork.py	/^	def create_model(self,input_size,output_size):$/;"	m	class:Chainer3LayerNeuralNetwork
+create_model	ChainerNeuralNetwork.py	/^	def create_model(self,input_size,output_size):$/;"	m	class:ChainerConvolutionalNeuralNetwork
+cross_inspect_feature	Util.py	/^def cross_inspect_feature():$/;"	f
+cross_inspect_feature	feature_vector.py	/^def cross_inspect_feature():$/;"	f
+cross_inspect_feature_v2	feature_vector.py	/^def cross_inspect_feature_v2():$/;"	f
+cross_validation	Util.py	/^from sklearn import cross_validation$/;"	i
+cross_validation	optimize.py	/^from sklearn import cross_validation$/;"	i
+cuda	ChainerNeuralNetwork.py	/^from chainer import cuda$/;"	i
+debug_mode	config.py	/^debug_mode = False$/;"	v
+dumpParameter	Layer.py	/^	def dumpParameter(self):$/;"	m	class:Layer
+evaluate_function	evaluation_functions.py	/^def evaluate_function(y_true,y_pred,eval_func):$/;"	f
+evaluate_value	data_visualization.py	/^		evaluate_value = evaluation_functions.evaluate_function(labels,train_data,'rmsle')$/;"	v
+evaluate_value	data_visualization.py	/^evaluate_value = evaluation_functions.evaluate_function(labels,train_preds,'rmsle')$/;"	v
+evaluation_functions	ChainerNeuralNetwork.py	/^import evaluation_functions$/;"	i
+evaluation_functions	Layer.py	/^import evaluation_functions$/;"	i
+evaluation_functions	data_visualization.py	/^import evaluation_functions$/;"	i
+evaluation_functions	optimize.py	/^import evaluation_functions$/;"	i
+feature_detection_categorical_feature	feature_vector.py	/^def feature_detection_categorical_feature():$/;"	f
+feature_detection_categorical_pca	feature_vector.py	/^def feature_detection_categorical_pca():$/;"	f
+feature_detection_categorical_stacker	feature_vector.py	/^def feature_detection_categorical_stacker():$/;"	f
+feature_dir	ControllerFile.py	/^feature_dir = "feature_vector"$/;"	v
+feature_dir	learnFeatureByModel.py	/^feature_dir = "feature_vector"$/;"	v
+feature_file	ControllerFile.py	/^	feature_file = os.path.join(feature_dir,feature_file_name)$/;"	v
+feature_file	learnFeatureByModel.py	/^	feature_file = os.path.join(feature_dir,feature_file_name)$/;"	v
+feature_file	parameter_turning.py	/^feature_file = sys.argv[1]$/;"	v
+feature_pkl_file	boosting_prediction.py	/^feature_pkl_file = sys.argv[1]$/;"	v
+feature_vector	boosting_prediction.py	/^import feature_vector$/;"	i
+feature_vector	feature_vector.py	/^def feature_vector():$/;"	f
+feature_vector	parameter_turning.py	/^import feature_vector$/;"	i
+feature_vector2	feature_vector.py	/^def feature_vector2():$/;"	f
+filename	boosting_prediction.py	/^filename = feature_pkl_file$/;"	v
+fit	ChainerNeuralNetwork.py	/^	def fit(self,train_x,train_y,transpose=True):$/;"	m	class:ChainerConvolutionalNeuralNetwork
+fit	ChainerNeuralNetwork.py	/^	def fit(self,train_x,train_y,validation=True):$/;"	m	class:ChainerNeuralNet
+fit	LasagneNeuralNetwork.py	/^	def fit(self,train_x,train_y):$/;"	m	class:NeuralNetwork
+fit	Layer.py	/^	def fit(self,training_x,training_y,stacking=True):$/;"	m	class:RegressionDecisionLayer
+fit	Layer.py	/^	def fit(self,x_trains,y_train):$/;"	m	class:Boosting
+fit	Layer.py	/^	def fit(self,x_trains,y_train):$/;"	m	class:ManyRegressorBoosting
+fit	Layer.py	/^	def fit(self,x_trains,y_train,max_evals=200,loss_function='gini'):$/;"	m	class:MinimumRankingAverage
+fit	XGBoost.py	/^    def fit(self, X, y,num_boost_round=None):$/;"	m	class:XGBoostClassifier
+fit	XGBoost.py	/^    def fit(self, X, y,num_boost_round=None):$/;"	m	class:XGBoostRegressor
+fmin	Layer.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+fmin	optimize.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+forward	ChainerNeuralNetwork.py	/^	def forward(self,x_batch,y_batch,train=True):$/;"	m	class:ChainerNeuralNet
+forward	ChainerNeuralNetwork.py	/^	def forward(self,x_batch,y_batch=None,train=True):$/;"	m	class:Chainer3LayerNeuralNetwork
+function_list	feature_vector.py	/^	function_list = [cross_inspect_feature_v2]$/;"	v
+function_name	feature_vector.py	/^	function_name = ["cross_inspect_feature_v2.pkl"]$/;"	v
+genIndexKFold	Util.py	/^def genIndexKFold(x,times):$/;"	f
+get_params	XGBoost.py	/^    def get_params(self, deep=True):$/;"	m	class:XGBoostWrapper
+gini_normalized	evaluation_functions.py	/^def gini_normalized(expected, predicted):$/;"	f
+hp	Layer.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+hp	config.py	/^from hyperopt import hp$/;"	i
+hp	optimize.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+json	Layer.py	/^import json$/;"	i
+json	boosting_prediction.py	/^import json$/;"	i
+json	parameter_turning.py	/^import json$/;"	i
+labels	boosting_result.py	/^labels = train.cost.values$/;"	v
+labels	data_visualization.py	/^labels = train.cost.values$/;"	v
+lasagne	LasagneNeuralNetwork.py	/^import lasagne$/;"	i
+layer	boosting_result.py	/^layer = Layer.Layer()$/;"	v
+layer	data_visualization.py	/^layer = Layer.Layer()$/;"	v
+layer_zone	boosting_prediction.py	/^layer_zone = Layer.StackingLayer()$/;"	v
+log_loss	evaluation_functions.py	/^from sklearn.metrics import accuracy_score,log_loss,mean_squared_error$/;"	i
+logloss	evaluation_functions.py	/^def logloss(y_true,y_pred):$/;"	f
+loss_func	Layer.py	/^	def loss_func(self,weights):$/;"	m	class:SLSQPResolver
+loss_func	Layer.py	/^	def loss_func(weights):$/;"	f	function:blending_weight_optimize
+loss_function	ChainerNeuralNetwork.py	/^	def loss_function(self,y_predict,y_true):$/;"	m	class:ChainerNeuralNet
+loss_function	parameter_turning.py	/^loss_function = "rmsle"$/;"	v
+max_n_estimators	config.py	/^	max_n_estimators = 10$/;"	v
+max_n_estimators	config.py	/^	max_n_estimators = 500$/;"	v
+mean	StackingFeature.py	/^	def mean(self,train,test):$/;"	m	class:StackingFeature
+mean_squared_error	evaluation_functions.py	/^from sklearn.metrics import accuracy_score,log_loss,mean_squared_error$/;"	i
+mean_squared_error_func	evaluation_functions.py	/^def mean_squared_error_func(y_true,y_pred):$/;"	f
+min_n_estimators	config.py	/^	min_n_estimators = 10$/;"	v
+min_n_estimators	config.py	/^	min_n_estimators = 2$/;"	v
+minimize	Layer.py	/^from scipy.optimize import minimize$/;"	i
+model_dump	Layer.py	/^	def model_dump(self,stacking_param,training_x,training_y,test_x,loss_function='gini',file_name=""):$/;"	m	class:Layer
+model_filename	boosting_prediction.py	/^model_filename = parameter_file_json$/;"	v
+model_name	parameter_turning.py	/^model_name = sys.argv[2]$/;"	v
+model_select	Util.py	/^def model_select(parameter):$/;"	f
+models_dump	Layer.py	/^	def models_dump(self,stacking_list,training_x,training_y,test_x,loss_function='gini',file_name=""):$/;"	m	class:Layer
+n_jobs	config.py	/^	n_jobs = -1$/;"	v
+n_jobs	config.py	/^	n_jobs = 4$/;"	v
+np	ChainerNeuralNetwork.py	/^import numpy as np$/;"	i
+np	LasagneNeuralNetwork.py	/^import numpy as np$/;"	i
+np	Layer.py	/^import numpy as np$/;"	i
+np	StackingFeature.py	/^import numpy as np$/;"	i
+np	Util.py	/^import numpy as np$/;"	i
+np	XGBoost.py	/^import numpy as np$/;"	i
+np	boosting_prediction.py	/^import numpy as np $/;"	i
+np	boosting_result.py	/^import numpy as np$/;"	i
+np	config.py	/^import numpy as np$/;"	i
+np	data_visualization.py	/^import numpy as np$/;"	i
+np	evaluation_functions.py	/^import numpy as np$/;"	i
+np	feature_vector.py	/^import numpy as np$/;"	i
+np	optimize.py	/^import numpy as np$/;"	i
+optimize	Layer.py	/^import optimize$/;"	i
+optimize	parameter_turning.py	/^import optimize$/;"	i
+optimize_linear_weight	optimize.py	/^def optimize_linear_weight(params,train_x,train_y,evaluate_function_name):$/;"	f
+optimize_model_function	optimize.py	/^def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name):$/;"	f
+optimize_model_parameter	optimize.py	/^def optimize_model_parameter(x,y,model_name=None,times=10,loss_function="accuracy",parameter=None,max_evals=100,total_time=None):$/;"	f
+optimizers	ChainerNeuralNetwork.py	/^from chainer import optimizers$/;"	i
+original_data	feature_vector.py	/^def original_data():$/;"	f
+os	ControllerFile.py	/^import os$/;"	i
+os	boosting_prediction.py	/^import os$/;"	i
+os	boosting_result.py	/^import os$/;"	i
+os	data_visualization.py	/^import os$/;"	i
+os	learnFeatureByModel.py	/^import os$/;"	i
+os	parameter_turning.py	/^import os$/;"	i
+parameter	boosting_prediction.py	/^    parameter = json.load(data_file)$/;"	v
+parameter	data_visualization.py	/^parameter = {$/;"	v
+parameter_chainer_regression	config.py	/^parameter_chainer_regression = {$/;"	v
+parameter_dict	parameter_turning.py	/^parameter_dict = config.parameter_dictionary[model_name]$/;"	v
+parameter_dictionary	config.py	/^parameter_dictionary = {}$/;"	v
+parameter_dir	ControllerFile.py	/^parameter_dir = "parameter"$/;"	v
+parameter_extratree_reg	config.py	/^parameter_extratree_reg = {$/;"	v
+parameter_extratrees_classifier	config.py	/^parameter_extratrees_classifier = {$/;"	v
+parameter_file	ControllerFile.py	/^			parameter_file = os.path.join(parameter_dir,parameter_file_name)$/;"	v
+parameter_file	learnFeatureByModel.py	/^parameter_file = "parameter\/LasagneNeuralNetwork.json"$/;"	v
+parameter_file_json	boosting_prediction.py	/^parameter_file_json = sys.argv[2]$/;"	v
+parameter_logisticclassifier_classifier	config.py	/^parameter_logisticclassifier_classifier = {$/;"	v
+parameter_randomforest_classifier	config.py	/^parameter_randomforest_classifier = {$/;"	v
+parameter_randomforest_regression	config.py	/^parameter_randomforest_regression = {$/;"	v
+parameter_skl_lasso	config.py	/^parameter_skl_lasso = {$/;"	v
+parameter_skl_ridge	config.py	/^parameter_skl_ridge = {$/;"	v
+parameter_svc_classifier	config.py	/^parameter_svc_classifier = {$/;"	v
+parameter_svr_regression	config.py	/^parameter_svr_regression = {$/;"	v
+parameter_xgboost_linear_regression	config.py	/^parameter_xgboost_linear_regression = {$/;"	v
+parameter_xgboost_logistic_regression	config.py	/^parameter_xgboost_logistic_regression = {$/;"	v
+pd	boosting_prediction.py	/^import pandas as pd$/;"	i
+pd	boosting_result.py	/^import pandas as pd$/;"	i
+pd	data_visualization.py	/^import pandas as pd$/;"	i
+pd	feature_vector.py	/^import pandas as pd$/;"	i
+pickle	Layer.py	/^import pickle$/;"	i
+pickle	boosting_prediction.py	/^import pickle$/;"	i
+pickle	boosting_result.py	/^import pickle$/;"	i
+pickle	data_visualization.py	/^import pickle$/;"	i
+pickle	feature_vector.py	/^import pickle$/;"	i
+predict	ChainerNeuralNetwork.py	/^	def predict(self,x_data):$/;"	m	class:ChainerConvolutionalNeuralNetwork
+predict	ChainerNeuralNetwork.py	/^	def predict(self,x_data):$/;"	m	class:ChainerNeuralNet
+predict	LasagneNeuralNetwork.py	/^	def predict(self,x):$/;"	m	class:NeuralNetwork
+predict	Layer.py	/^	def predict(self,predictions,labels):$/;"	m	class:SLSQPResolver
+predict	Layer.py	/^	def predict(self,train_x,train_y,test_x,parameter,times=5,validation_indexs=None,type='regression'):$/;"	m	class:Layer
+predict	Layer.py	/^	def predict(self,x_test):$/;"	m	class:AverageLayer
+predict	Layer.py	/^	def predict(self,x_test):$/;"	m	class:MinimumRankingAverage
+predict	Layer.py	/^	def predict(self,x_tests):$/;"	m	class:Boosting
+predict	Layer.py	/^	def predict(self,x_trains,y_train):$/;"	m	class:ManyRegressorBoosting
+predict	XGBoost.py	/^    def predict(self, X):$/;"	m	class:XGBoostClassifier
+predict	XGBoost.py	/^    def predict(self, X):$/;"	m	class:XGBoostRegressor
+predict_all	Layer.py	/^	def predict_all(self,train_x,train_y,test_x,validation_indexs=None,type='regression'):$/;"	m	class:Layer
+predict_proba	ChainerNeuralNetwork.py	/^	def predict_proba(self,x_data):$/;"	m	class:ChainerConvolutionalNeuralNetwork
+predict_proba	ChainerNeuralNetwork.py	/^	def predict_proba(self,x_data):$/;"	m	class:ChainerNeuralNet
+predict_proba	Layer.py	/^	def predict_proba(self,train_x,train_y,test_x,parameter,clf_number,validation_indexs=None,type='regression'):$/;"	m	class:ClassificationLayer
+predict_proba	Layer.py	/^	def predict_proba(self,train_x,train_y,test_x,validation_indexs=None):$/;"	m	class:Layer
+predict_proba	XGBoost.py	/^    def predict_proba(self, X):$/;"	m	class:XGBoostWrapper
+preds	boosting_result.py	/^        preds = pd.DataFrame({"Id": test_ind, "cost": preds})$/;"	v
+preds	boosting_result.py	/^        preds = pickle.load(open("test\/" + train_file))$/;"	v
+preds	boosting_result.py	/^        preds = preds.set_index('Id')$/;"	v
+preds	boosting_result.py	/^    preds = preds + weights[index] * np.array(test_list)[index]$/;"	v
+preds	boosting_result.py	/^preds = np.zeros(np.array(test_list)[0].shape)$/;"	v
+preds	boosting_result.py	/^preds = pd.DataFrame({"Id": test_ind, "cost": preds})$/;"	v
+preds	boosting_result.py	/^preds = preds.set_index('Id')$/;"	v
+preprocessing	boosting_prediction.py	/^from sklearn import preprocessing$/;"	i
+preprocessing	feature_vector.py	/^from sklearn import preprocessing$/;"	i
+rmsle	evaluation_functions.py	/^def rmsle(y, y0):$/;"	f
+root_mean_squared_loss_function	LasagneNeuralNetwork.py	/^def root_mean_squared_loss_function(a,b):$/;"	f
+selective_feature	feature_vector.py	/^def selective_feature():$/;"	f
+setModel	LasagneNeuralNetwork.py	/^	def setModel(self,input_dim):$/;"	m	class:NeuralNetwork
+setModel	Layer.py	/^	def setModel(self,model_param=None,model_name=None,train_x=None,train_y=None,time=10,loss_function="mean_squared_error",max_evals=200):$/;"	m	class:Layer
+setStackingParameter	Layer.py	/^	def setStackingParameter(self,stacking_list,training_x,training_y,loss_function='gini'):$/;"	m	class:RegressionFramework
+set_params	XGBoost.py	/^    def set_params(self, **params):$/;"	m	class:XGBoostWrapper
+stack_feature	Util.py	/^def stack_feature(clf,train,labels,test):$/;"	f
+startFrameWork	Layer.py	/^	def startFrameWork(self,train_x,train_y,test_x,stacking_list,loss_function='gini'):$/;"	m	class:RegressionFramework
+std	StackingFeature.py	/^	def std(self,train,test):$/;"	m	class:StackingFeature
+step_n_estimators	config.py	/^	step_n_estimators = 1$/;"	v
+step_n_estimators	config.py	/^	step_n_estimators = 5$/;"	v
+subprocess	ControllerFile.py	/^import subprocess$/;"	i
+subprocess	learnFeatureByModel.py	/^import subprocess$/;"	i
+sys	boosting_prediction.py	/^import sys$/;"	i
+sys	parameter_turning.py	/^import sys$/;"	i
+test	boosting_result.py	/^test  = pd.read_csv('..\/data\/test_set.csv', index_col=0)$/;"	v
+test	data_visualization.py	/^test  = pd.read_csv('..\/data\/test_set.csv', index_col=0)$/;"	v
+test_array	data_visualization.py	/^test_array = np.array(test_list).T$/;"	v
+test_ind	boosting_result.py	/^test_ind = test.index$/;"	v
+test_ind	data_visualization.py	/^test_ind = test.index$/;"	v
+test_list	boosting_result.py	/^test_list = [pickle.load(open(config.BLENDING_TEST_DIR + "\/" + test_file)) for test_file in config.BLENDING_FILES]$/;"	v
+test_list	data_visualization.py	/^test_list = [pickle.load(open("test\/" + test_file)) for test_file in os.listdir('test') if test_file.endswith(".pkl")]$/;"	v
+theano	LasagneNeuralNetwork.py	/^import theano$/;"	i
+theano	LasagneNeuralNetwork.py	/^import theano.tensor as T$/;"	i
+tpe	Layer.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+tpe	optimize.py	/^from hyperopt import hp,fmin,tpe$/;"	i
+train	boosting_result.py	/^train  = pd.read_csv('..\/data\/train_set.csv', index_col=0)$/;"	v
+train	data_visualization.py	/^train  = pd.read_csv('..\/data\/train_set.csv', index_col=0)$/;"	v
+train_array	data_visualization.py	/^train_array = np.array(train_list).T$/;"	v
+train_data	boosting_result.py	/^    train_data = pickle.load(open("train\/" + train_file))$/;"	v
+train_data	data_visualization.py	/^	train_data = pickle.load(open("train\/" + train_file))$/;"	v
+train_list	boosting_result.py	/^train_list = [pickle.load(open(config.BLENDING_TRAIN_DIR + "\/" + train_file)) for train_file in config.BLENDING_FILES]$/;"	v
+train_list	data_visualization.py	/^train_list = [pickle.load(open("train\/" + train_file)) for train_file in os.listdir('train') if train_file.endswith(".pkl")]$/;"	v
+train_test_split	ChainerNeuralNetwork.py	/^from sklearn.cross_validation import train_test_split$/;"	i
+train_test_split	LasagneNeuralNetwork.py	/^from sklearn.cross_validation import train_test_split$/;"	i
+train_test_split	XGBoost.py	/^from sklearn.cross_validation import train_test_split$/;"	i
+turning_param	parameter_turning.py	/^turning_param = optimize.optimize_model_parameter(train_x,train_y,model_name,times=1,loss_function=loss_function,parameter=parameter_dict,max_evals=200,total_time=None)$/;"	v
+validate	ChainerNeuralNetwork.py	/^	def validate(self,valid_x,valid_y):$/;"	m	class:ChainerNeuralNet
+validation_indexs	boosting_prediction.py	/^	validation_indexs = Util.genIndexKFold(labels, validation_time)$/;"	v
+validation_indexs	boosting_prediction.py	/^	validation_indexs = pickle.load(open("validation_list.pkl","r"))$/;"	v
+validation_indexs	boosting_prediction.py	/^validation_indexs = None$/;"	v
+validation_time	boosting_prediction.py	/^validation_time = 1$/;"	v
+weighted_kappa	evaluation_functions.py	/^def weighted_kappa():$/;"	f
+wrapper_learning_selector	Util.py	/^def wrapper_learning_selector():$/;"	f
+xgb	XGBoost.py	/^import xgboost as xgb$/;"	i
+xgb_max_num_round	config.py	/^	xgb_max_num_round = 10$/;"	v
+xgb_max_num_round	config.py	/^	xgb_max_num_round = 2000$/;"	v
+xgb_min_num_round	config.py	/^	xgb_min_num_round = 1$/;"	v
+xgb_min_num_round	config.py	/^	xgb_min_num_round = 1500$/;"	v
+xgb_num_round_step	config.py	/^	xgb_num_round_step = 1$/;"	v
+xgb_num_round_step	config.py	/^	xgb_num_round_step = 10$/;"	v
