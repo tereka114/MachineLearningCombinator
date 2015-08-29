@@ -28,25 +28,31 @@ class Layer(object):
         clf.fit(train_x,train_y)
         self.clf = clf
 
-    def predict(self,test_x):
+    def predict(self,train_x,train_y,test_x):
+    	self.fit(parameter,train_x,train_y)
         return self.clf.predict(test_x)
 
-    def predict_proba(self,test_x):
-        return self.clf.predict_proba(test_x)
+    def predict_proba(self,train_x,train_y,test_x,parameter):
+    	self.fit(parameter,train_x,train_y)
+        return self.clf.predict_proba(train_x),self.clf.predict_proba(test_x)
 
 class RegressionLayer(Layer):
     def __init__(self):
         pass
 
-    def fit(self,parameter,train_x,train_y):
-        #clf = Util.model_select(parameter)
-        clf = SVR()
-        clf.fit(train_x,train_y)
-        self.clf = clf
-
 class ClassificationLayer(Layer):
     def __init__(self):
         pass
+
+class ClassificationBinaryLayer(Layer):
+	def __init__(self):
+		pass
+
+	def predict_proba(self,train_x,train_y,test_x,parameter):
+		self.fit(parameter,train_x,train_y)
+		train_predict = self.clf.predict_proba(train_x)[:,1]
+		test_predict = self.clf.predict_proba(test_x)[:,1]
+		return train_predict,test_predict
 
 class BaggingLayer(Layer):
 	def __init__(self):
@@ -81,7 +87,7 @@ class BaggingLayer(Layer):
 
 		return np.mean(train_preds,axis=0),np.mean(test_preds,axis=0)
 
-	def predict_proba(self,train_x,train_y,test_x,parameter,n_classification=1,times=5,validation_indexs=None,type='regression'):
+	def predict_proba(self,train_x,train_y,test_x,parameter,n_classification=1,times=5,type='regression'):
 		print parameter['model'] + " predict staring"
 		validation_time = 1
 
@@ -115,46 +121,49 @@ class RegressionBaggingLayer(BaggingLayer):
 	def __init__(self):
 		pass
 
-class ClassificationBaggingLayer(BaggingLayer):
+class ClassificationMultiBaggingLayer(BaggingLayer):
 	def __init__(self):
 		pass
 
-	def predict_proba(self,train_x,train_y,test_x,parameter,clf_number,validation_indexs=None,type='classification'):
+class ClassificationBinaryBaggingLayer(BaggingLayer):
+	def __init__(self):
+		pass
+
+	def predict_proba(self,train_x,train_y,test_x,parameter,times=5,type='classification'):
 		print parameter['model'] + " predict staring"
-		validation_time = 1
 
-		if validation_indexs == None:
-			validation_indexs = Util.genIndexKFold(train_x, validation_time)
+		folding_indexs = 10
+		train_pred_list = np.zeros((times,len(train_x)))
+		test_pred = np.zeros((times * folding_indexs,len(test_x)))
 
-		train_pred_list = np.zeros((len(validation_indexs),len(train_x)))
-		test_pred = np.zeros((len(validation_indexs) * len(validation_indexs[0]),len(test_x),clf_number))
+		for i in xrange(times):
+			validation_indexs = Util.genIndexKFold(train_x, folding_indexs)
+			print validation_indexs
+			train_pred = np.zeros((len(train_x)))
 
-		for i,validation_index_list in enumerate(validation_indexs):
-			train_pred = np.zeros((len(train_x),clf_number))
-
-			for j,validation_index in enumerate(validation_index_list):
+			for j,(train_ind, test_ind) in enumerate(validation_indexs):
 				clf = Util.model_select(parameter)
-				print train_x,train_y
+				X_train = train_x[train_ind]
+				Y_train = train_y[train_ind]
+				X_test = train_x[test_ind]
+				Y_test = train_y[test_ind]
 
-				clf.fit(train_x[validation_index[0]],train_y[validation_index[0]])
-				test_pred[i * 10 + j] = clf.predict_proba(test_x)
-				train_pred[validation_index[1]] = clf.predict_proba(train_x[validation_index[1]])
+				clf.fit(X_train,Y_train,evaluate_function=evaluation_functions.evaluate_function)
+				if parameter['model'] == "XGBREGLOGISTIC":
+					test_pred[i * 10 + j] = clf.predict_proba(test_x)
+					train_pred[test_ind] = clf.predict_proba(X_test)
+					print test_pred[i * 10 + j]
+				else:
+					test_pred[i * 10 + j] = clf.predict_proba(test_x)[:,1]
+					train_pred[test_ind] = clf.predict_proba(X_test)[:,1]
+				evaluation = evaluation_functions.evaluate_function(Y_test,train_pred[test_ind],"area_auc")
+				logging.info("time:{} Fold:{} evaluation:{}".format(str(i),str(j),str(evaluation)))
 			train_pred_list[i] = train_pred
+			print train_pred_list[i]
 
-		return np.mean(train_pred,axis=0),np.mean(test_pred,axis=0)
+		return np.mean(train_pred_list,axis=0),np.mean(test_pred,axis=0)
 
 	def predict(self,train_x,train_y,test_x,parameter,times=5,validation_indexs=None,type='regression'):
-		"""
-		you should implement voting algorithm
-		:param train_x:
-		:param train_y:
-		:param test_x:
-		:param parameter:
-		:param times:
-		:param validation_indexs:
-		:param type:
-		:return:
-		"""
 		print parameter['model'] + " predict staring"
 
 		train_preds = np.zeros((times,len(train_x)))

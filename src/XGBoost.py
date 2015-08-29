@@ -35,8 +35,16 @@ class XGBoostClassifier(XGBoostWrapper):
         self.label2num = dict((label, i) for i, label in enumerate(sorted(set(y))))
 
         xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,y,test_size=0.2)
-        dtrain = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_train_y])
-        dvalid = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_validate_y])
+
+        print self.params
+
+        if self.params["objective"] == "binary:logistic":
+            print "binary:logistic"
+            dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
+            dvalid = xgb.DMatrix(xg_validate, label=xg_validate_y)
+        else:
+            dtrain = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_train_y])
+            dvalid = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_validate_y])
         #evallist  = [(dtrain,'train')]
 
         watchlist = [(dtrain,'train'),(dvalid,'val')]

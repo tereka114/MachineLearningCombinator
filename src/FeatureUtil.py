@@ -29,18 +29,18 @@ class FeatureVector(object):
         else:
             return "f"
 
-    def getVector(self,one_of_k=False,label_base=False,std=False,pca=False):
-        train,labels,test = self.convertFileToFeature()
+    def getVector(self,one_of_k=False,label_base=False,std=False,pca=False,MinMaxScaler=False):
+        np_train,labels,np_test = self.convertFileToFeature()
         self.std = std
         self.pca = pca
         self.one_of_k = one_of_k
         self.label_base = label_base
 
         if one_of_k:
-            np_train,np_test = convertDataToNumpyArrayOneOfK(train,test,std=std,category_list=self.list)
+            np_train,np_test = convertDataToNumpyArrayOneOfK(np_train,np_test,std=std,category_list=self.list)
 
         if label_base:
-            np_train,np_test = convertDataToNumpyArrayBaseLabel(train,test,std=std,category_list=self.list)
+            np_train,np_test = convertDataToNumpyArrayBaseLabel(np_train,np_test,std=std,category_list=self.list)
 
         print np_train.shape,np_test.shape
 
@@ -49,14 +49,17 @@ class FeatureVector(object):
             """
             todo: to write the pca method
             """
+        if MinMaxScaler:
+            self.MinMaxScaler = MinMaxScaler
+            np_train,np_test = min_max_scaler(np_train,np_test)
         return np_train,labels,np_test
 
     def getFeatureName(self):
         suffix = ".pkl"
         word_list = []
 
-        flag_list = [self.pca,self.std,self.one_of_k,self.label_base]
-        flag_name_list = ["pca","std","one_of_k","label"]
+        flag_list = [self.pca,self.std,self.one_of_k,self.label_base,self.MinMaxScaler]
+        flag_name_list = ["pca","std","one_of_k","label","MinMaxScaler"]
 
         for flag,flag_name in zip(flag_list,flag_name_list):
             word = flag_name + "_" + self.convertFlagToString(flag)
@@ -93,6 +96,14 @@ def scaleZeroToOne(train,test):
 
             train[:,i] = train[:,i]
             #test[:,i] = sds.transform(test[:,i])
+    return train,test
+
+def min_max_scaler(train,test):
+    MinMaxScaler = preprocessing.MinMaxScaler()
+    data = np.vstack((train,test))
+    MinMaxScaler.fit(data)
+    train = MinMaxScaler.transform(train)
+    test = MinMaxScaler.transform(test)
     return train,test
 
 """

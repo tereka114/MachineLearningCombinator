@@ -17,7 +17,7 @@ class ChainerNeuralNet(object):
 		self.cuda = cuda
 		self.varbose = varbose
 		self.model = model
-		self.epochs = 1000
+		self.epochs = epoch
 		self.problem_type = problem_type
 		self.loss_function_type = "softmax_cross_entropy"
 		self.layer_param = layer_param

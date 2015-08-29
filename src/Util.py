@@ -26,6 +26,14 @@ def model_select(parameter):
 			min_samples_leaf=int(parameter["min_samples_leaf"]),
 			min_samples_split=int(parameter['min_samples_split'])
 			)
+	elif model_name == "RFCLF":
+		return RandomForestClassifier(
+			n_estimators=int(parameter['n_estimators']),
+			max_features=parameter['max_features'],
+			max_depth=int(parameter['max_depth']),
+			min_samples_leaf=int(parameter["min_samples_leaf"]),
+			min_samples_split=int(parameter['min_samples_split'])
+			)
 	elif model_name == 'XGBREGLINEAR':
 		params = {}
 		params['objective'] = parameter['objective']
@@ -41,19 +49,17 @@ def model_select(parameter):
 		params = {}
 		params['objective'] = parameter['objective']
 		params['eta'] = parameter['eta']
-		params['max_depth'] = parameter['max_depth']
-		params['scale_pos_weight'] = parameter['scale_pos_weight']
+		params['min_child_weight'] = int(parameter['min_child_weight'])
+		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
+		params['scale_pos_weight'] = 1
+		params['gamma'] = parameter['gamma']
 		params['colsample_bytree'] = parameter['colsample_bytree']
-		return XGBoost.XGBoostRegressor(int(parameter['num_round']),**params)
+		return XGBoost.XGBoostClassifier(int(parameter['num_round']),**params)
 	elif model_name == 'LASSO':
 		return Lasso(alpha=parameter['alpha'], normalize=True)
 	elif model_name == 'RIDGE':
 		return Ridge(alpha=parameter["alpha"], normalize=True)
-	elif model_name == 'RFREG':
-		return RandomForestRegressor(n_estimators=int(parameter['n_estimators']),
-			max_features=parameter['max_features'],
-			max_depth=int(parameter['max_depth']))
 	elif model_name == 'EXTREEREG':
 		return ExtraTreesRegressor(n_estimators=int(parameter['n_estimators']),
 			max_depth=int(parameter['max_depth']),
@@ -72,6 +78,8 @@ def model_select(parameter):
 			max_features=0.7)
 	elif model_name == 'LasagneNeuralNetworkRegression':
 		return LasagneNeuralNetwork.NeuralNetwork()
+	elif model_name == 'LasagneNeuralNetworkClassification':
+		return LasagneNeuralNetwork.NeuralNetwork(problem_type="classification")
 
 def genIndexKFold(x,times):
 	skf = KFold(n=len(x),n_folds=times,shuffle=True)

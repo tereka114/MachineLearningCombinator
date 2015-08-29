@@ -10,28 +10,46 @@ import os
 import Util
 import sys
 
-
-validation_indexs = None
+import argparse
 
 """
 you should read the pickle file
 """
-feature_pkl_file = sys.argv[1]
-parameter_file_json = sys.argv[2]
+def option_parse():
+	parser = argparse.ArgumentParser(description='This script is that machine predict the result.you can choose bagging or signle')
+	parser.add_argument('-i','--input_file',
+		type=str
+		)
+	parser.add_argument('-p','--input_parameter',
+		type=str
+		)
+	parser.add_argument('-l','--learning_model',
+		type=str
+		)
+	args = parser.parse_args()
+	return args
+
+args = option_parse()
+
+feature_pkl_file = args.input_file
+parameter_file_json = args.input_parameter
+learning_model = args.learning_model
 
 filename = feature_pkl_file
 train,labels,test = pickle.load(open(filename,"r"))
 
-validation_time = 1
-
-if os.path.exists("validation_list.pkl"):
-	validation_indexs = pickle.load(open("validation_list.pkl","r"))
-else:
-	validation_indexs = Util.genIndexKFold(labels, validation_time)
-	pickle.dump(validation_indexs,open("validation_list.pkl","w"))
-
 feature_name,ext = os.path.splitext(os.path.basename(filename))
-layer_zone = Layer.RegressionBaggingLayer()
+
+if learning_model == "bagging_clf_binary":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "bagging_clf_multi":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "clf":
+	layer = Layer.ClassificationBinaryLayer()
+elif learning_model == "bagging_reg":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "reg":
+	layer = Layer.RegressionLayer()
 #layer_zone.models_dump(['XGBREGLINEAR','XGBREGLOGISTIC','RIDGE'], train,labels, test, 'gini', '')
 
 model_filename = parameter_file_json
@@ -39,22 +57,12 @@ name,ext = os.path.splitext(os.path.basename(model_filename))
 
 with open(model_filename) as data_file:    
     parameter = json.load(data_file)
-train_predict,test_predict = layer_zone.predict(train,labels, test,parameter=parameter)
-print train_predict,test_predict
+train_predict,test_predict = layer.predict_proba(train,labels, test,parameter=parameter)
 
 if not os.path.exists("train"):
 	os.mkdir("train")
-pickle.dump(train_predict, open("./train/" + name + "_" + feature_name + ".pkl","w"))
+pickle.dump(train_predict, open("./train/" + name + "_" + feature_name + "_" + learning_model + ".pkl","w"))
 
 if not os.path.exists("test"):
 	os.mkdir("test")
-pickle.dump(test_predict, open("./test/" + name + "_" + feature_name + ".pkl","w"))
-
-#Stackingの結果
-# layer = Layer.Layer()
-# test_pred,predict = layer.predict(train,labels, test, {'model':'RFREG','n_estimators':100,'max_features':0.05}, None)
-# print predict
-# #generate solution
-# preds = pd.DataFrame({"Id": test_ind, "Hazard": predict})
-# preds = preds.set_index('Id')
-# preds.to_csv('xgboost_benchmark.csv')
+pickle.dump(test_predict, open("./test/" + name + "_" + feature_name + "_" + learning_model + ".pkl","w"))
