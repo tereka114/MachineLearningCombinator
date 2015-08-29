@@ -65,10 +65,13 @@ def root_mean_squared_loss_function(a,b):
 	return (T.log(1.0 + a) - T.log(1.0 + b)) ** 2
 
 class NeuralNetwork(object):
-	def __init__(self,problem_type="regression",batch_size=500,epochs=200):
+	def __init__(self,problem_type="regression",batch_size=500,epochs=1000,layer_number=[],dropout_layer=[]):
 		self.problem_type = problem_type
 		self.batch_size = batch_size
 		self.epochs = epochs
+		self.layer_number = [500,500,500,500]
+		self.dropout_number = [0.0,0.5,0.5,0.3]
+		assert len(self.layer_number) == len(self.dropout_number),"you should correct number between hidden layers and dropout numbers"
 
 	"""
 	you should set the construction of model
@@ -77,32 +80,26 @@ class NeuralNetwork(object):
 		neural_network = lasagne.layers.InputLayer(
 		    shape=(None, input_dim),input_var=input_var
 		)
-		neural_network = lasagne.layers.DenseLayer(
-		    lasagne.layers.DropoutLayer(neural_network,p=0.0),
-		    num_units=500,
-		    nonlinearity=lasagne.nonlinearities.leaky_rectify,
-		)
-		neural_network = lasagne.layers.DenseLayer(
-		    lasagne.layers.DropoutLayer(neural_network,p=0.5),
-		    num_units=500,
-		    nonlinearity=lasagne.nonlinearities.leaky_rectify,
-		)
 
-		neural_network = lasagne.layers.DenseLayer(
-		    lasagne.layers.DropoutLayer(neural_network,p=0.5),
-		    num_units=500,
-		    nonlinearity=lasagne.nonlinearities.leaky_rectify,
-		)
-		neural_network = lasagne.layers.DenseLayer(
-		    lasagne.layers.DropoutLayer(neural_network,p=0.3),
-		    num_units=500,
-		    nonlinearity=lasagne.nonlinearities.leaky_rectify,
-		)
-		neural_network = lasagne.layers.DenseLayer(
-		    neural_network,
-		    num_units=n_classes,
-		    nonlinearity=lasagne.nonlinearities.softmax,
-		)
+		# construct the hidden layers
+		for layer,dropout_number in zip(self.layer_number,self.dropout_number):
+			neural_network = lasagne.layers.DenseLayer(
+			    lasagne.layers.DropoutLayer(neural_network,p=dropout_number),
+			    num_units=layer,
+			    nonlinearity=lasagne.nonlinearities.leaky_rectify,
+			)
+
+		if self.problem_type == "classification":
+			neural_network = lasagne.layers.DenseLayer(
+			    neural_network,
+			    num_units=n_classes,
+			    nonlinearity=lasagne.nonlinearities.softmax,
+			)
+		elif self.problem_type == "regression":
+			neural_network = lasagne.layers.DenseLayer(
+			    neural_network,
+			    num_units=n_classes
+			)
 
 		self.neural_network = neural_network
 
@@ -151,6 +148,7 @@ class NeuralNetwork(object):
 
 	def fit(self,train_x,train_y,valid=False,evaluate_function=None):
 		input_var = T.matrix('inputs')
+
 		if self.problem_type == "regression":
 			print ("regression model Lasagne Neural Network")
 			self.loss_function_type = "mean_squared_loss"
@@ -160,7 +158,7 @@ class NeuralNetwork(object):
 			if valid is True:
 				split_train_x,valid_x,split_train_y,valid_y = train_test_split(train_x_copy,train_y_copy,test_size=0.1)
 			else:
-				split_train_x,split_train_y = train_x,train_y
+				split_train_x,split_train_y = train_x_copy,train_y_copy
 
 			N,input_dim = split_train_x.shape
 
@@ -203,19 +201,31 @@ class NeuralNetwork(object):
   #          loss, params, learning_rate=0.01, momentum=0.9)
 
 		test_prediction = lasagne.layers.get_output(self.neural_network, deterministic=True)
-		test_loss = lasagne.objectives.categorical_crossentropy(test_prediction,
-		                                                        target_var)
+
+		test_loss = None
+		if self.loss_function_type == "mean_squared_loss":
+			test_loss = lasagne.objectives.squared_error(test_prediction, target_var)
+		elif self.loss_function_type == "cross_entropy_loss":
+			test_loss = lasagne.objectives.categorical_crossentropy(test_prediction, target_var)
+
 		test_loss = test_loss.mean()
 		# As a bonus, also create an expression for the classification accuracy:
-		test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), target_var),
-		                  dtype=theano.config.floatX)
+		test_acc = None
+		if self.loss_function_type == "cross_entropy_loss":
+			test_acc = T.mean(T.eq(T.argmax(test_prediction, axis=1), target_var),
+		                 	dtype=theano.config.floatX)
 
 		# Compile a function performing a training step on a mini-batch (by giving
 		# the updates dictionary) and returning the corresponding training loss:
 		train_fn = theano.function([input_var, target_var], loss, updates=updates)
-
+		val_fn = None
 		# Compile a second function computing the validation loss and accuracy:
-		val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
+		if self.problem_type == "classification":
+			val_fn = theano.function([input_var, target_var], [test_loss, test_acc])
+		else:
+			val_fn = theano.function([input_var, target_var], test_loss)
+
+		self.prediction_fc = theano.function([input_var],test_prediction)
 
 		nlist = np.arange(N)
 		print("Starting training...")
@@ -237,9 +247,12 @@ class NeuralNetwork(object):
 		        	val_batches = 0
 		        	for batch in self.iterate_minibatches(valid_x, valid_y, 500, shuffle=False):
 		        	    inputs, targets = batch
-		        	    err, acc = val_fn(inputs, targets)
+		        	    if self.problem_type == "classification":
+		        	    	err, acc = val_fn(inputs, targets)
+		        	    	val_acc += acc
+		        	    else:
+		        	    	err = val_fn(inputs, targets)
 		        	    val_err += err
-		        	    val_acc += acc
 		        	    val_batches += 1
 
 		        # Then we print the results for this epoch:
@@ -248,16 +261,16 @@ class NeuralNetwork(object):
 		        print("  training loss:\t\t{:.6f}".format(train_err / train_batches))
 		        if valid:
 		        	print("  validation loss:\t\t{:.6f}".format(val_err / val_batches))
-		        	print("  validation accuracy:\t\t{:.2f} %".format(
-		            	val_acc / val_batches * 100))
+		        	if self.problem_type == "classification":
+		        		print("  validation accuracy:\t\t{:.2f} %".format(
+		            		val_acc / val_batches * 100))
 
 	def predict(self,x):
-		y = self.prediction_fc(x)
+		y = self.prediction_fc(x.astype(np.float32))
 		return y.reshape(len(y))
 
 	def predict_proba(self,x):
 		y = self.prediction_fc(x)
-		print y
 		return y
 
 if __name__ == '__main__':

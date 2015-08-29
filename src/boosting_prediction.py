@@ -47,7 +47,7 @@ elif learning_model == "bagging_clf_multi":
 elif learning_model == "clf":
 	layer = Layer.ClassificationBinaryLayer()
 elif learning_model == "bagging_reg":
-	layer = Layer.ClassificationBinaryBaggingLayer()
+	layer = Layer.RegressionBaggingLayer()
 elif learning_model == "reg":
 	layer = Layer.RegressionLayer()
 #layer_zone.models_dump(['XGBREGLINEAR','XGBREGLOGISTIC','RIDGE'], train,labels, test, 'gini', '')
@@ -57,7 +57,7 @@ name,ext = os.path.splitext(os.path.basename(model_filename))
 
 with open(model_filename) as data_file:    
     parameter = json.load(data_file)
-train_predict,test_predict = layer.predict_proba(train,labels, test,parameter=parameter)
+train_predict,test_predict = layer.predict(train,labels, test,parameter=parameter)
 
 if not os.path.exists("train"):
 	os.mkdir("train")

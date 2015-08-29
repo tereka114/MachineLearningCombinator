@@ -40,7 +40,11 @@ parameter_svc_classifier = {
 }
 
 parameter_extratrees_classifier = {
-	
+	'model':'EXTREEREG',
+	'max_depth':hp.quniform("max_depth",3.0,20.0,1.0),
+	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
+	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
+	'n_estimators':500,	
 }
 
 parameter_randomforest_classifier = {

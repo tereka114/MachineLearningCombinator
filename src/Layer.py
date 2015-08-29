@@ -28,9 +28,9 @@ class Layer(object):
         clf.fit(train_x,train_y)
         self.clf = clf
 
-    def predict(self,train_x,train_y,test_x):
-    	self.fit(parameter,train_x,train_y)
-        return self.clf.predict(test_x)
+    def predict(self,train_x,train_y,test_x,parameter):
+    	self.fit(parameter,train_x,np.train_y)
+        return self.clf.predict(train_x),self.clf.predict(test_x)
 
     def predict_proba(self,train_x,train_y,test_x,parameter):
     	self.fit(parameter,train_x,train_y)
@@ -39,6 +39,10 @@ class Layer(object):
 class RegressionLayer(Layer):
     def __init__(self):
         pass
+
+    def predict(self,train_x,train_y,test_x,parameter):
+    	self.fit(parameter,train_x,np.log1p(train_y))
+        return self.clf.predict(np.expm1(train_x)),self.clf.predict(np.expm1(test_x))
 
 class ClassificationLayer(Layer):
     def __init__(self):
@@ -181,7 +185,7 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 				X_test = train_x[test_ind]
 				Y_test = train_y[test_ind]
 
-				clf.fit(X_train,Y_train,early_stopping=False)
+				clf.fit(X_train,Y_train)
 				test_pred[i][:] = np.expm1(clf.predict(test_x))
 				train_pred[test_ind] = np.expm1(clf.predict(X_test))
 				print evaluation_functions.evaluate_function(Y_test,train_pred[test_ind], 'rmsle')

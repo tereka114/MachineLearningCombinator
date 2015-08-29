@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 import config
 from sklearn.linear_model import LogisticRegression
+import Layer
 """
 single data
 """
@@ -12,6 +13,7 @@ train  = pd.read_csv('../data/training.csv', index_col=0)
 test  = pd.read_csv('../data/test.csv', index_col=0)
 test_ind = test.index
 labels = train["signal"]
+
 
 if not os.path.exists("submission"):
     os.mkdir("submission")
@@ -27,14 +29,29 @@ for train_file in os.listdir('train'):
 train_list = [pickle.load(open("train/" + train_file)) for train_file in os.listdir('train') if train_file.endswith(".pkl")]
 test_list = [pickle.load(open("test/" + test_file)) for test_file in os.listdir('test') if test_file.endswith(".pkl")]
 
-for train_file in os.listdir('train'):
-	if train_file.endswith(".pkl"):
-		print pickle.load(open("train/" + train_file))
-print np.array(labels).astype(np.float32).shape
+train = np.array(train_list).T
+test = np.array(test_list).T
+labels = np.array(labels)
+learning_model = Layer.ClassificationBinaryLayer()
 
-model = LogisticRegression()
-model.fit(np.array(train_list).T,np.array(labels).astype(np.float32))
-preds = model.predict_proba(np.array(test_list).T)[:,1]
+parameter = {
+	"model": "LasagneNeuralNetworkClassification",
+	"layer_number":[100,100,100,100],
+	"dropout_layer":[0.0,0.5,0.5,0.3]
+}
+
+if learning_model == "bagging_clf_binary":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "bagging_clf_multi":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "clf":
+	layer = Layer.ClassificationBinaryLayer()
+elif learning_model == "bagging_reg":
+	layer = Layer.ClassificationBinaryBaggingLayer()
+elif learning_model == "reg":
+	layer = Layer.RegressionLayer()
+
+preds = learning_model.predict_proba(train,labels, test,parameter=parameter)[:,1]
 # train_list = [pickle.load(open(config.BLENDING_TRAIN_DIR + "/" + train_file)) for train_file in config.BLENDING_FILES]
 # test_list = [pickle.load(open(config.BLENDING_TEST_DIR + "/" + test_file)) for test_file in config.BLENDING_FILES]
 # #load train and test

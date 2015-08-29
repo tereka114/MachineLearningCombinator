@@ -3,7 +3,7 @@ from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
 from sklearn.svm import SVR
 from sklearn import cross_validation
-from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor
+from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor,ExtraTreesClassifier
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet
 import numpy as np
@@ -17,7 +17,12 @@ def model_select(parameter):
 	if model_name == "logistic_classifier":
 		return LogisticRegression(C=parameter['C'])
 	elif model_name == "SVR":
-		return SVR(C=parameter['C'],gamma=parameter['gamma'],kernel=parameter['kernel'],)
+		return SVR(C=parameter['C'],gamma=parameter['gamma'],kernel=parameter['kernel'])
+	elif model_name == "EXTREECLF":
+		return ExtraTreesClassifier(n_estimators=int(parameter['n_estimators']),
+			max_depth=int(parameter['max_depth']),
+			min_samples_leaf=int(parameter['min_samples_leaf']),
+			min_samples_split=int(parameter['min_samples_split']))
 	elif model_name == "RFREG":
 		return RandomForestRegressor(
 			n_estimators=int(parameter['n_estimators']),
@@ -79,7 +84,7 @@ def model_select(parameter):
 	elif model_name == 'LasagneNeuralNetworkRegression':
 		return LasagneNeuralNetwork.NeuralNetwork()
 	elif model_name == 'LasagneNeuralNetworkClassification':
-		return LasagneNeuralNetwork.NeuralNetwork(problem_type="classification")
+		return LasagneNeuralNetwork.NeuralNetwork(problem_type="classification",dropout_layer=parameter['dropout_layer'],layer_number=parameter['layer_number'])
 
 def genIndexKFold(x,times):
 	skf = KFold(n=len(x),n_folds=times,shuffle=True)
