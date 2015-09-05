@@ -35,6 +35,7 @@ class FeatureVector(object):
         self.pca = pca
         self.one_of_k = one_of_k
         self.label_base = label_base
+        self.MinMaxScaler = MinMaxScaler
 
         if one_of_k:
             np_train,np_test = convertDataToNumpyArrayOneOfK(np_train,np_test,std=std,category_list=self.list)
@@ -50,7 +51,6 @@ class FeatureVector(object):
             todo: to write the pca method
             """
         if MinMaxScaler:
-            self.MinMaxScaler = MinMaxScaler
             np_train,np_test = min_max_scaler(np_train,np_test)
         return np_train,labels,np_test
 
@@ -113,9 +113,11 @@ def nparray_to_dictionary(data,category_list=None):
     dictionary_list = []
     for i in xrange(data.shape[0]):
         data_dictionary = {}
+        isStringColumn = False
+
         for j in xrange(data.shape[1]):
             if category_list != None:
-                if j in category_list:
+                if j in category_list or type(train[0,i]) == str:
                     data_dictionary[j] = str(data[i][j])
                 else:
                     data_dictionary[j] = data[i][j]
@@ -124,13 +126,34 @@ def nparray_to_dictionary(data,category_list=None):
         dictionary_list.append(data_dictionary)
     return dictionary_list
 
-def data_to_labeled_encoder(train,test,category_list):
+def data_to_labeled_encoder(train,test,category_list,skip_list=[43]):
     for i in range(train.shape[1]):
-        if i in category_list:
+        isStringColumn = False
+        for j in xrange(len(train[:,i])):
+            if type(train[j,i]) == str:
+                isStringColumn = True
+                break
+        if i in category_list or isStringColumn:
+            print i,train[1371,i],type(train[1371,i])
             lbl = preprocessing.LabelEncoder()
+            np.where(train[:,i] == -1)
+            np.where(test[:,i] == -1)
+
+            train[np.where(train[:,i] == -1),i] = "-1"
+            test[np.where(test[:, i] == -1),i] = "-1"
+
             lbl.fit(list(train[:, i]) + list(test[:, i]))
+
             train[:, i] = lbl.transform(train[:, i])
             test[:, i] = lbl.transform(test[:, i])
+            #print list(train[:, i]) + list(test[:, i])
+            # print list(lbl.classes_)
+            # for j in xrange(len(train[:, i])):
+            #     print train[j, i]
+            #     train[j, i] = lbl.transform(train[j, i])
+            # for j in xrange(len(test[:, i])):
+            #     print test[j, i]
+            #     test[j, i] = lbl.transform(test[j, i])
     return train,test
 
 """
@@ -138,6 +161,7 @@ convert data to numpy array
 This numpy arrays are one of k expression
 """
 def convertDataToNumpyArrayOneOfK(train,test,dataframe=False,std=True,category_list=None):
+    category_list = []
     if dataframe:
         train = np.array(train)
         test = np.array(test)
@@ -154,11 +178,11 @@ def convertDataToNumpyArrayOneOfK(train,test,dataframe=False,std=True,category_l
     train = vec.transform(data_train).toarray()
     test = vec.transform(data_test).toarray()
 
-    return train.astype(float),test.astype(float)
+    return train.astype(np.float32),test.astype(np.float32)
 
 
 def convertDataToNumpyArrayBaseLabel(train,test,dataframe=False,std=True,category_list=None):
-    category_list= [0, 3, 5, 11, 12, 13, 14, 15, 16, 20, 22, 24, 26, 28, 30, 32, 34]
+    category_list= []
     if dataframe:
         train = np.array(train)
         test = np.array(test)
@@ -166,7 +190,8 @@ def convertDataToNumpyArrayBaseLabel(train,test,dataframe=False,std=True,categor
         train,test = scaleStandard(train,test)
 
     train,test = data_to_labeled_encoder(train,test,category_list)
-    return train.astype(float),test.astype(float)
+    print train[0]
+    return train.astype(np.float32),test.astype(np.float32)
 
 if __name__ == '__main__':
     df = s1 = pd.Series([1.0,2.0,3.0,4.0,5.0], index=[0,1,2,3,4])

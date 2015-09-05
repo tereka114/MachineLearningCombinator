@@ -34,21 +34,34 @@ class XGBoostClassifier(XGBoostWrapper):
         num_boost_round = num_boost_round or self.num_boost_round
         self.label2num = dict((label, i) for i, label in enumerate(sorted(set(y))))
 
-        xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,y,test_size=0.2)
+        early_stopping = False
+        if early_stopping == True:
+            xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,y,test_size=0.2)
 
-        print self.params
+            print self.params
 
-        if self.params["objective"] == "binary:logistic":
-            print "binary:logistic"
-            dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
-            dvalid = xgb.DMatrix(xg_validate, label=xg_validate_y)
+            if self.params["objective"] == "binary:logistic":
+                print "binary:logistic"
+                dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
+                dvalid = xgb.DMatrix(xg_validate, label=xg_validate_y)
+            else:
+                dtrain = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_train_y])
+                dvalid = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_validate_y])
+            #evallist  = [(dtrain,'train')]
+
+            watchlist = [(dtrain,'train'),(dvalid,'val')]
+            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,early_stopping_rounds=80)
         else:
-            dtrain = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_train_y])
-            dvalid = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_validate_y])
-        #evallist  = [(dtrain,'train')]
-
-        watchlist = [(dtrain,'train'),(dvalid,'val')]
-        self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,early_stopping_rounds=80)
+            xg_train,xg_train_y = X,y
+            if self.params["objective"] == "binary:logistic":
+                print "binary:logistic"
+                dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
+                watchlist = [(dtrain,'train')]
+                self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist)
+            else:
+                dtrain = xgb.DMatrix(X, label=[self.label2num[label] for label in xg_train_y])
+                watchlist = [(dtrain,'train')]
+                self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist)
 
     def predict(self, X):
         num2label = dict((i, label)for label, i in self.label2num.items())

@@ -2,6 +2,7 @@ import numpy as np
 import theano
 import theano.tensor as T
 from sklearn.cross_validation import train_test_split
+from sklearn import metrics
 import lasagne
 import sys
 import os
@@ -65,12 +66,12 @@ def root_mean_squared_loss_function(a,b):
 	return (T.log(1.0 + a) - T.log(1.0 + b)) ** 2
 
 class NeuralNetwork(object):
-	def __init__(self,problem_type="regression",batch_size=500,epochs=1000,layer_number=[],dropout_layer=[]):
+	def __init__(self,problem_type="regression",batch_size=128,epochs=400,layer_number=[],dropout_layer=[]):
 		self.problem_type = problem_type
 		self.batch_size = batch_size
 		self.epochs = epochs
-		self.layer_number = [500,500,500,500]
-		self.dropout_number = [0.0,0.5,0.5,0.3]
+		self.layer_number = layer_number
+		self.dropout_number = dropout_layer
 		assert len(self.layer_number) == len(self.dropout_number),"you should correct number between hidden layers and dropout numbers"
 
 	"""
@@ -103,37 +104,6 @@ class NeuralNetwork(object):
 
 		self.neural_network = neural_network
 
-		#pred = lasagne.layers.get_output(self.neural_network, input_var, deterministic=True)
-
-		# l_in = lasagne.layers.InputLayer(shape=(None, input_dim),
-		#                                  input_var=input_var)
-
-		# l_in_drop = lasagne.layers.DropoutLayer(l_in, p=0.2)
-
-		# # Add a fully-connected layer of 800 units, using the linear rectifier, and
-		# # initializing weights with Glorot's scheme (which is the default anyway):
-		# l_hid1 = lasagne.layers.DenseLayer(
-		#         l_in_drop, num_units=100,
-		#         nonlinearity=lasagne.nonlinearities.rectify,
-		#         W=lasagne.init.GlorotUniform())
-
-		# l_hid1_drop = lasagne.layers.DropoutLayer(l_hid1, p=0.1)
-
-		# # Another 800-unit layer:
-		# l_hid2 = lasagne.layers.DenseLayer(
-		#         l_hid1_drop, num_units=100,
-		#         nonlinearity=lasagne.nonlinearities.rectify)
-
-		# # 50% dropout again:
-		# l_hid2_drop = lasagne.layers.DropoutLayer(l_hid2, p=0.1)
-
-		# # Finally, we'll add the fully-connected output layer, of 10 softmax units:
-		# l_out = lasagne.layers.DenseLayer(
-		#         l_hid2_drop, num_units=n_classes,
-		#         nonlinearity=lasagne.nonlinearities.softmax)
-
-		# self.neural_network = l_out
-
 	def iterate_minibatches(self, inputs, targets, batchsize, shuffle=False):
 	    assert len(inputs) == len(targets)
 	    if shuffle:
@@ -148,6 +118,8 @@ class NeuralNetwork(object):
 
 	def fit(self,train_x,train_y,valid=False,evaluate_function=None):
 		input_var = T.matrix('inputs')
+		print train_x
+		print train_y
 
 		if self.problem_type == "regression":
 			print ("regression model Lasagne Neural Network")
@@ -187,8 +159,10 @@ class NeuralNetwork(object):
 		loss = None
 
 		if self.loss_function_type == "mean_squared_loss":
+			print ("mean_squared_loss")
 			loss = lasagne.objectives.squared_error(prediction, target_var)
 		elif self.loss_function_type == "cross_entropy_loss":
+			print ("cross entropy loss")
 			loss = lasagne.objectives.categorical_crossentropy(prediction, target_var)
 
 		loss = loss.mean()
@@ -264,6 +238,11 @@ class NeuralNetwork(object):
 		        	if self.problem_type == "classification":
 		        		print("  validation accuracy:\t\t{:.2f} %".format(
 		            		val_acc / val_batches * 100))
+		        		valid_preds = self.prediction_fc(valid_x)[:, 1]
+		        		roc =  metrics.roc_auc_score(valid_y, valid_preds)
+		        		print("  roc score:\t\t{:.6f}".format(roc))
+
+
 
 	def predict(self,x):
 		y = self.prediction_fc(x.astype(np.float32))

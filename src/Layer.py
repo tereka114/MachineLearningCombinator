@@ -42,7 +42,7 @@ class RegressionLayer(Layer):
 
     def predict(self,train_x,train_y,test_x,parameter):
     	self.fit(parameter,train_x,np.log1p(train_y))
-        return self.clf.predict(np.expm1(train_x)),self.clf.predict(np.expm1(test_x))
+        return np.expm1(self.clf.predict(train_x)),np.expm1(self.clf.predict(test_x))
 
 class ClassificationLayer(Layer):
     def __init__(self):
@@ -54,8 +54,12 @@ class ClassificationBinaryLayer(Layer):
 
 	def predict_proba(self,train_x,train_y,test_x,parameter):
 		self.fit(parameter,train_x,train_y)
-		train_predict = self.clf.predict_proba(train_x)[:,1]
-		test_predict = self.clf.predict_proba(test_x)[:,1]
+		if parameter['model'] == "XGBREGLOGISTIC":
+			train_predict = self.clf.predict_proba(train_x)
+			test_predict = self.clf.predict_proba(test_x)
+		else:
+			train_predict = self.clf.predict_proba(train_x)[:,1]
+			test_predict = self.clf.predict_proba(test_x)[:,1]
 		return train_predict,test_predict
 
 class BaggingLayer(Layer):
@@ -152,7 +156,7 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 				X_test = train_x[test_ind]
 				Y_test = train_y[test_ind]
 
-				clf.fit(X_train,Y_train,evaluate_function=evaluation_functions.evaluate_function)
+				clf.fit(X_train,Y_train)
 				if parameter['model'] == "XGBREGLOGISTIC":
 					test_pred[i * 10 + j] = clf.predict_proba(test_x)
 					train_pred[test_ind] = clf.predict_proba(X_test)
@@ -160,8 +164,8 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 				else:
 					test_pred[i * 10 + j] = clf.predict_proba(test_x)[:,1]
 					train_pred[test_ind] = clf.predict_proba(X_test)[:,1]
-				evaluation = evaluation_functions.evaluate_function(Y_test,train_pred[test_ind],"area_auc")
-				logging.info("time:{} Fold:{} evaluation:{}".format(str(i),str(j),str(evaluation)))
+				#evaluation = evaluation_functions.evaluate_function(Y_test,train_pred[test_ind],"auc")
+				#logging.info("time:{} Fold:{} evaluation:{}".format(str(i),str(j),str(evaluation)))
 			train_pred_list[i] = train_pred
 			print train_pred_list[i]
 

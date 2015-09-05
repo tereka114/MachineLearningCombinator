@@ -6,13 +6,16 @@ import pandas as pd
 import config
 from sklearn.linear_model import LogisticRegression
 import Layer
+from sklearn.preprocessing import LabelEncoder
 """
 single data
 """
-train  = pd.read_csv('../data/training.csv', index_col=0)
-test  = pd.read_csv('../data/test.csv', index_col=0)
-test_ind = test.index
-labels = train["signal"]
+train  = pd.read_csv('../data/train.csv')
+test  = pd.read_csv('../data/test.csv')
+test_ind = test.ID.astype(str)
+encoder = LabelEncoder()
+labels = train.target
+labels = encoder.fit_transform(labels).astype(np.int32)
 
 
 if not os.path.exists("submission"):
@@ -23,7 +26,7 @@ for train_file in os.listdir('train'):
     if train_file.endswith(".pkl"):
     	#check agreement correlation test
         preds = pickle.load(open("test/" + train_file))
-        preds = pd.DataFrame({"Id": test_ind, "prediction": preds})
+        preds = pd.DataFrame({"Id": test_ind, "target": preds})
         preds.to_csv("submission/" + train_file + '.csv',index=False, sep=',')
 
 train_list = [pickle.load(open("train/" + train_file)) for train_file in os.listdir('train') if train_file.endswith(".pkl")]

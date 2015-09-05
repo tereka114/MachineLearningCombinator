@@ -6,6 +6,11 @@ evaluate function for created models
 def weighted_kappa():
 	pass
 
+def auc(y_true,y_pred):
+    fpr, tpr, thresholds = roc_curve(y_true, y_pred)
+    roc_auc = auc(fpr, tpr)
+    return roc_auc
+
 def accuracy(y_true,y_pred):
 	return accuracy_score(y_true,y_pred)
 
@@ -179,3 +184,5 @@ def evaluate_function(y_true,y_pred,eval_func):
         return rmsle(y_true,y_pred)
     elif eval_func == "area_auc":
         return roc_auc_truncated(y_true,y_pred)
+    elif eval_func == "auc":
+        return auc(y_true,y_pred)

@@ -60,6 +60,7 @@ def model_select(parameter):
 		params['scale_pos_weight'] = 1
 		params['gamma'] = parameter['gamma']
 		params['colsample_bytree'] = parameter['colsample_bytree']
+		params['eval_metric'] = "auc"
 		return XGBoost.XGBoostClassifier(int(parameter['num_round']),**params)
 	elif model_name == 'LASSO':
 		return Lasso(alpha=parameter['alpha'], normalize=True)
@@ -82,9 +83,9 @@ def model_select(parameter):
 			max_depth=10,
 			max_features=0.7)
 	elif model_name == 'LasagneNeuralNetworkRegression':
-		return LasagneNeuralNetwork.NeuralNetwork()
+		return LasagneNeuralNetwork.NeuralNetwork(epochs=int(parameter['epochs']))
 	elif model_name == 'LasagneNeuralNetworkClassification':
-		return LasagneNeuralNetwork.NeuralNetwork(problem_type="classification",dropout_layer=parameter['dropout_layer'],layer_number=parameter['layer_number'])
+		return LasagneNeuralNetwork.NeuralNetwork(epochs=int(parameter['epochs']),problem_type="classification",dropout_layer=parameter['dropout_layer'],layer_number=parameter['layer_number'])
 
 def genIndexKFold(x,times):
 	skf = KFold(n=len(x),n_folds=times,shuffle=True)

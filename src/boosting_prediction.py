@@ -57,7 +57,7 @@ name,ext = os.path.splitext(os.path.basename(model_filename))
 
 with open(model_filename) as data_file:    
     parameter = json.load(data_file)
-train_predict,test_predict = layer.predict(train,labels, test,parameter=parameter)
+train_predict,test_predict = layer.predict_proba(train,labels, test,parameter=parameter)
 
 if not os.path.exists("train"):
 	os.mkdir("train")
