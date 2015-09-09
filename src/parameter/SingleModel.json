@@ -1,0 +1,35 @@
+{
+	"ensenble_parameters":[
+		{
+			"parameter":{
+			    "colsample_bytree": 0.7,
+			    "min_child_weight": 10,
+			    "num_round": 250,
+			    "subsample": 0.7, 
+			    "eta": 0.2,
+			    "max_depth": 4, 
+			    "gamma": 0.6000000000000001,
+			    "model": "XGBREGLOGISTIC",
+			    "objective": "binary:logistic"
+			},
+			"feature_path":"./feature_vector/str_label_pca_f_std_f_one_of_k_f_label_t_MinMaxScaler_f.pkl",
+			"id":"1"
+		},
+		{
+			"parameter":{
+			    "colsample_bytree": 0.7,
+			    "min_child_weight": 10,
+			    "num_round": 250,
+			    "subsample": 0.7, 
+			    "eta": 0.2,
+			    "max_depth": 4, 
+			    "gamma": 0.6000000000000001,
+			    "model": "XGBREGLOGISTIC",
+			    "objective": "binary:logistic"
+			},
+			"feature_path":"./feature_vector/str_label_pca_f_std_f_one_of_k_f_label_t_MinMaxScaler_f.pkl",
+			"id":"2"
+		}
+	],
+	"feature_name":""
+}
