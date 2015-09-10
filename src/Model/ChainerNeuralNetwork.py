@@ -5,7 +5,7 @@ from chainer import cuda
 import chainer.functions as Function
 import numpy as np
 from sklearn.cross_validation import train_test_split
-import evaluation_functions
+from ..utility.evaluation_functions import evaluate_function
 
 class NeuralNetwork(object):
 	def __init__(self):

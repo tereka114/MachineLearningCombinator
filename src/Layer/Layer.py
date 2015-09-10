@@ -1,23 +1,23 @@
-import Util
+from ..utility.Util import model_select,genIndexKFold,genIndexStratifiedKFold
 import numpy as np
-import optimize
-import config
+from ..parameter_tunes.optimize import optimize_linear_weight
+from ..utility.config import parameter_dictionary
 from hyperopt import hp,fmin,tpe
 from sklearn.svm import SVR
-import evaluation_functions
+from ..utility.evaluation_functions import evaluate_function
 from scipy.optimize import minimize
 import logging
 
-logger = logging.getLogger("applog")
-logging.basicConfig(level=logging.DEBUG,
-                    format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
-                    datefmt='%m-%d %H:%M',
-                    filename='./tmp/app.log',
-                    filemode='a')
+# logger = logging.getLogger("applog")
+# logging.basicConfig(level=logging.DEBUG,
+#                     format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
+#                     datefmt='%m-%d %H:%M',
+#                     filename='./tmp/app.log',
+#                     filemode='a')
 
-console = logging.StreamHandler()
-console.setLevel(logging.INFO)
-logging.getLogger('').addHandler(console)
+# console = logging.StreamHandler()
+# console.setLevel(logging.INFO)
+# logging.getLogger('').addHandler(console)
 
 class Layer(object):
     def __init__(self):
@@ -73,12 +73,12 @@ class BaggingLayer(Layer):
 		test_preds = np.zeros((times,len(test_x)))
 		for time in xrange(times):
 			logging.info("time {}".format(str(time)))
-			validation_indexs = Util.genIndexKFold(train_x, 10)
+			validation_indexs = genIndexKFold(train_x, 10)
 			test_pred = np.zeros((len(validation_indexs),len(test_x)))
 			train_pred = np.zeros((len(train_x)))
 
 			for i,(train_ind, test_ind) in enumerate(validation_indexs):
-				clf = Util.model_select(parameter)
+				clf = model_select(parameter)
 				logging.info("start time:{} Fold:{}".format(str(time),str(i)))
 				X_train = train_x[train_ind]
 				Y_train = np.log1p(train_y[train_ind])
@@ -100,7 +100,7 @@ class BaggingLayer(Layer):
 		validation_time = 1
 
 		if validation_indexs == None:
-			validation_indexs = Util.genIndexKFold(train_x, validation_time)
+			validation_indexs = genIndexKFold(train_x, validation_time)
 
 		train_preds = np.zeros((times,len(train_x),n_classification))
 		test_preds = np.zeros((times,len(test_x),n_classification))
@@ -110,7 +110,7 @@ class BaggingLayer(Layer):
 			train_pred = np.zeros((len(train_x),n_classification))
 
 			for i,(train_ind, test_ind) in enumerate(validation_indexs):
-				clf = Util.model_select(parameter)
+				clf = model_select(parameter)
 				print "Fold",i
 				X_train = train_x[train_ind]
 				Y_train = np.log1p(train_y[train_ind])
@@ -145,12 +145,12 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 		test_pred = np.zeros((times * folding_indexs,len(test_x)))
 
 		for i in xrange(times):
-			validation_indexs = Util.genIndexStratifiedKFold(train_y, folding_indexs)
+			validation_indexs = genIndexStratifiedKFold(train_y, folding_indexs)
 			print validation_indexs
 			train_pred = np.zeros((len(train_x)))
 
 			for j,(train_ind, test_ind) in enumerate(validation_indexs):
-				clf = Util.model_select(parameter)
+				clf = model_select(parameter)
 				X_train = train_x[train_ind]
 				Y_train = train_y[train_ind]
 				X_test = train_x[test_ind]
@@ -177,12 +177,12 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 		train_preds = np.zeros((times,len(train_x)))
 		test_preds = np.zeros((times,len(test_x)))
 		for time in xrange(times):
-			validation_indexs = Util.genIndexKFold(train_x, 10)
+			validation_indexs = genIndexKFold(train_x, 10)
 			test_pred = np.zeros((len(validation_indexs),len(test_x)))
 			train_pred = np.zeros((len(train_x)))
 
 			for i,(train_ind, test_ind) in enumerate(validation_indexs):
-				clf = Util.model_select(parameter)
+				clf = model_select(parameter)
 				print "Fold",i
 				X_train = train_x[train_ind]
 				Y_train = np.log1p(train_y[train_ind])
@@ -225,7 +225,7 @@ class MinimumRankingAverage(object):
 			parameter_dict[i] = hp.quniform(str(i),0.01,1.0,0.02)
 
 		print "======================================================="
-		function = lambda params: optimize.optimize_linear_weight(params, x_trains, y_train, loss_function)
+		function = lambda params: optimize_linear_weight(params, x_trains, y_train, loss_function)
 		print parameter_dict,x_trains,y_train
 		weight_params = fmin(function,parameter_dict,
 				algo=tpe.suggest,max_evals=max_evals)
@@ -278,7 +278,7 @@ class ManyRegressorBoosting(object):
 	def __init__(self,params):
 		self.clfs = []
 		for param in params:
-			clf = Util.model_select(param)
+			clf = model_select(param)
 		self.clfs.append(clf)
 
 	def fit(self,x_trains,y_train):

@@ -8,60 +8,6 @@ import sys
 import os
 import time
 
-
-# def load_dataset():
-#     # We first define some helper functions for supporting both Python 2 and 3.
-#     if sys.version_info[0] == 2:
-#         from urllib import urlretrieve
-#         import cPickle as pickle
-
-#         def pickle_load(f, encoding):
-#             return pickle.load(f)
-#     else:
-#         from urllib.request import urlretrieve
-#         import pickle
-
-#         def pickle_load(f, encoding):
-#             return pickle.load(f, encoding=encoding)
-
-#     # We'll now download the MNIST dataset if it is not yet available.
-#     url = 'http://deeplearning.net/data/mnist/mnist.pkl.gz'
-#     filename = 'mnist.pkl.gz'
-#     if not os.path.exists(filename):
-#         print("Downloading MNIST dataset...")
-#         urlretrieve(url, filename)
-
-#     # We'll then load and unpickle the file.
-#     import gzip
-#     with gzip.open(filename, 'rb') as f:
-#         data = pickle_load(f, encoding='latin-1')
-
-#     # The MNIST dataset we have here consists of six numpy arrays:
-#     # Inputs and targets for the training set, validation set and test set.
-#     X_train, y_train = data[0]
-#     X_val, y_val = data[1]
-#     X_test, y_test = data[2]
-
-#     # The inputs come as vectors, we reshape them to monochrome 2D images,
-#     # according to the shape convention: (examples, channels, rows, columns)
-#     X_train = X_train.reshape((-1, 784))
-#     X_val = X_val.reshape((-1, 784))
-#     X_test = X_test.reshape((-1, 784))
-
-#     # The targets are int64, we cast them to int8 for GPU compatibility.
-#     y_train = y_train.astype(np.uint8)
-#     y_val = y_val.astype(np.uint8)
-#     y_test = y_test.astype(np.uint8)
-
-#     # We just return all the arrays in order, as expected in main().
-#     # (It doesn't matter how we do this as long as we can read them again.)
-#     return X_train, y_train, X_val, y_val, X_test, y_test
-
-# def test():
-# 	X_train, y_train, X_val, y_val, X_test, y_test = load_dataset()
-# 	nn = NeuralNetwork(problem_type="classification")
-# 	nn.fit(X_train,y_train)
-
 def root_mean_squared_loss_function(a,b):
 	return (T.log(1.0 + a) - T.log(1.0 + b)) ** 2
 
