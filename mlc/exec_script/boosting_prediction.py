@@ -1,5 +1,5 @@
 #coding:utf-8
-import Layer
+import ..mlp.layer.Layer
 import feature_vector
 import pandas as pd
 import numpy as np 
