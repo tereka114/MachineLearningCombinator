@@ -1,0 +1,7 @@
+tmp/
+train/
+test/
+submission/
+*.pyc
+.DS_Store
+feature_vector/
