@@ -10,6 +10,8 @@ from ..model.XGBoost import XGBoostRegressor,XGBoostClassifier
 from ..model.ChainerNeuralNetwork import Chainer3LayerNeuralNetwork
 from ..model.LasagneNeuralNetwork import NeuralNetwork
 from sklearn.cross_validation import KFold,StratifiedKFold
+from sklearn.neighbors import KNeighborsClassifier
+import os
 
 def model_select(parameter):
 	model_name = parameter['model']
@@ -85,6 +87,8 @@ def model_select(parameter):
 		return NeuralNetwork(epochs=int(parameter['epochs']))
 	elif model_name == 'LasagneNeuralNetworkClassification':
 		return NeuralNetwork(epochs=int(parameter['epochs']),problem_type="classification",dropout_layer=parameter['dropout_layer'],layer_number=parameter['layer_number'])
+	elif model_name == 'KNN':
+		return KNeighborsClassifier(n_neighbors=int(parameter['n_neighbors']))
 
 def genIndexKFold(x,times):
 	skf = KFold(n=len(x),n_folds=times,shuffle=True)
@@ -110,3 +114,7 @@ def stack_feature(clf,train,labels,test):
 	test_s = np.hstack((test,pred_test))
 
 	return train_s,test_s
+
+def create_directory(path):
+	if not os.path.exists(path):
+		os.mkdir(path)

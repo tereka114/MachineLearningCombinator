@@ -1,5 +1,5 @@
 import numpy as np
-from sklearn.metrics import accuracy_score,log_loss,mean_squared_error,roc_curve, auc
+from sklearn.metrics import accuracy_score,log_loss,mean_squared_error,roc_curve, auc,roc_auc_score
 """
 evaluate function for created models
 """
@@ -7,9 +7,7 @@ def weighted_kappa():
 	pass
 
 def auc(y_true,y_pred):
-    fpr, tpr, thresholds = roc_curve(y_true, y_pred)
-    roc_auc = auc(fpr, tpr)
-    return roc_auc
+    return roc_auc_score(y_true,y_pred)
 
 def accuracy(y_true,y_pred):
 	return accuracy_score(y_true,y_pred)
@@ -173,7 +171,7 @@ def roc_auc_truncated(labels, predictions, tpr_thresholds=(0.2, 0.4, 0.6, 0.8),
 
 def evaluate_function(y_true,y_pred,eval_func):
     if eval_func == "accuracy":
-		return accuracy(y_pred, y_true)
+		return accuracy(y_true,y_pred)
     elif eval_func == "logloss":
 		return logloss(y_true, y_pred)
     elif eval_func == "mean_squared_error":

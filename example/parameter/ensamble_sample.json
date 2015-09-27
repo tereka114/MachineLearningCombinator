@@ -1,0 +1,38 @@
+{
+	"ensemble_parameters":[
+		{
+			"model_parameter":{
+				"max_depth": 6, 
+				"max_features": 0.5, 
+				"min_samples_leaf": 1.0, 
+				"min_samples_split": 1.0,
+				"model":"RFCLF",
+				"n_estimators": 100, 
+				"n_jobs": -1
+			}
+		},
+		{
+			"model_parameter":{
+				"max_depth": 10, 
+				"max_features": 0.5, 
+				"min_samples_leaf": 1.0, 
+				"min_samples_split": 1.0,
+				"model":"RFCLF",
+				"n_estimators": 100, 
+				"n_jobs": -1
+			}
+		},
+		{
+			"model_parameter":{
+				"max_depth": 10, 
+				"max_features": 0.5, 
+				"min_samples_leaf": 1.0, 
+				"min_samples_split": 1.0,
+				"model":"RFCLF",
+				"n_estimators": 200, 
+				"n_jobs": -1
+			}
+		},
+	],
+	"ensanble_name":"ensamble_sample"
+}

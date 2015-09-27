@@ -1,7 +1,7 @@
 {
-    "colsample_bytree": 0.7,
+    "colsample_bytree": 0.9,
     "min_child_weight": 10,
-    "num_round": 250,
+    "num_round": 300,
     "subsample": 0.7, 
     "eta": 0.2,
     "max_depth": 4, 

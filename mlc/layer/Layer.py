@@ -1,3 +1,4 @@
+#coding:utf-8
 from ..utility.Util import model_select,genIndexKFold,genIndexStratifiedKFold
 import numpy as np
 from ..parameter_tunes.optimize import optimize_linear_weight
@@ -24,12 +25,12 @@ class Layer(object):
         pass
 
     def fit(self,parameter,train_x,train_y):
-        clf = Util.model_select(parameter)
+        clf = model_select(parameter)
         clf.fit(train_x,train_y)
         self.clf = clf
 
     def predict(self,train_x,train_y,test_x,parameter):
-    	self.fit(parameter,train_x,np.train_y)
+    	self.fit(parameter,train_x,train_y)
         return self.clf.predict(train_x),self.clf.predict(test_x)
 
     def predict_proba(self,train_x,train_y,test_x,parameter):
@@ -95,7 +96,7 @@ class BaggingLayer(Layer):
 
 		return np.mean(train_preds,axis=0),np.mean(test_preds,axis=0)
 
-	def predict_proba(self,train_x,train_y,test_x,parameter,n_classification=1,times=5,type='regression'):
+	def predict_proba(self,train_x,train_y,test_x,parameter,times=5):
 		print parameter['model'] + " predict staring"
 		validation_time = 1
 
@@ -133,14 +134,39 @@ class ClassificationMultiBaggingLayer(BaggingLayer):
 	def __init__(self):
 		pass
 
+	def predict_proba(self,train_x,train_y,test_x,parameter,times=1):
+		print parameter['model'] + " predict staring"
+		clf_number = len(set(train_y))
+
+		folding_indexs = 10
+		train_pred_list = np.zeros((times,len(train_x),clf_number))
+		test_pred = np.zeros((times * folding_indexs,len(test_x),clf_number))
+
+		for i in xrange(times):
+			validation_indexs = genIndexStratifiedKFold(train_y, folding_indexs)
+			train_pred = np.zeros((len(train_x),clf_number))
+
+			for j,(train_ind, test_ind) in enumerate(validation_indexs):
+				clf = model_select(parameter)
+				X_train = train_x[train_ind]
+				Y_train = train_y[train_ind]
+				X_test = train_x[test_ind]
+				Y_test = train_y[test_ind]
+
+				clf.fit(X_train,Y_train)
+				test_pred[i * 10 + j] = clf.predict_proba(test_x)
+				train_pred[test_ind] = clf.predict_proba(X_test)
+			train_pred_list[i] = train_pred
+		return np.mean(train_pred_list,axis=0),np.mean(test_pred,axis=0)
+
 class ClassificationBinaryBaggingLayer(BaggingLayer):
 	def __init__(self):
 		pass
 
-	def predict_proba(self,train_x,train_y,test_x,parameter,times=5,type='classification'):
+	def predict_proba(self,train_x,train_y,test_x,parameter,times=1):
 		print parameter['model'] + " predict staring"
 
-		folding_indexs = 10
+		folding_indexs = 5
 		train_pred_list = np.zeros((times,len(train_x)))
 		test_pred = np.zeros((times * folding_indexs,len(test_x)))
 
@@ -160,12 +186,10 @@ class ClassificationBinaryBaggingLayer(BaggingLayer):
 				if parameter['model'] == "XGBREGLOGISTIC":
 					test_pred[i * 10 + j] = clf.predict_proba(test_x)
 					train_pred[test_ind] = clf.predict_proba(X_test)
-					print test_pred[i * 10 + j]
 				else:
 					test_pred[i * 10 + j] = clf.predict_proba(test_x)[:,1]
 					train_pred[test_ind] = clf.predict_proba(X_test)[:,1]
-				#evaluation = evaluation_functions.evaluate_function(Y_test,train_pred[test_ind],"auc")
-				#logging.info("time:{} Fold:{} evaluation:{}".format(str(i),str(j),str(evaluation)))
+				print evaluate_function(Y_test,train_pred[test_ind], 'auc')
 			train_pred_list[i] = train_pred
 			print train_pred_list[i]
 

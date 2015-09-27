@@ -1,49 +1,84 @@
 #coding:utf-8
-import Layer
+import layer
 import numpy as np
 import pickle
 import os
+from ..utility.Util import create_directory
 
-class EmsambleLayer(object):
+class EnsambleLayer(object):
 	def __init__(self):
 		pass
 
 	def predict(self,parameters):
 		pass
 
-class EmsambleLayerRegression(EmsambleLayer):
+class EnsambleLayerRegression(EnsambleLayer):
 	def __init__(self):
 		pass
 
-class EmsambleLayerBinaryClassifier(EmsambleLayer):
+class EnsambleLayerBinaryClassifier(EnsambleLayer):
 	def __init__(self):
 		pass
 
-	def predict(self,parameters):
-		train_prediction_array = []
-		test_prediction_array = []
-		for parameter in parameters:
-			model_parameter = parameter["parameter"]
-			feature_filename = parameter["feature_path"]
-			model_id_file = parameter["id"] + ".pkl"
-			train = None
-			test = None
-			
-			if os.path.exists(model_id_file):
-				print "load",model_id_file
-				train,test = pickle.load(model_id_file)
+	def predict_proba(self,train_x,train_y,test_x,parameters):
+		"""
+		:param train_x: train_x
+		"""
+		ensemble_parameters = parameters["ensemble_parameters"]
+		folder_name = parameters["ensanble_name"]
+		train_result_array = []
+		test_result_array = []
+		for index,parameter in enumerate(ensemble_parameters):
+			clf = layer.ClassificationBinaryLayer()
+			model_parameter= parameter['model_parameter']
+
+			filename = os.path.join(folder_name,str(index) + ".pkl")
+			create_directory(folder_name)
+
+			if os.path.exists(filename):
+				train_predict_proba,test_predict_proba = pickle.load(open(filename,"r"))
 			else:
-				print "prediction",model_id_file
-				train,labels,test = pickle.load(open(feature_filename,"r"))
-				clf = Layer.ClassificationBinaryBaggingLayer()
-				train,test = clf.predict_proba(train,labels,test,model_parameter)
+				clf = None
+				if not "type" in parameter:
+					print "This parameter is not set model parameter"
+					clf = layer.ClassificationBinaryBaggingLayer()
+				elif parameter['type'] == 'bagging':
+					clf = layer.ClassificationBinaryBaggingLayer()
+				else:
+					clf = layer.ClassificationBinaryLayer()
 
-				f = file(model_id_file, 'w')
-				pickle.dump((train,test), f)
-			train_prediction_array.append(train)
-			test_prediction_array.append(test)
-				#TODO:結果保存
-		train_prediction_array = np.array(train_prediction_array).T
-		test_prediction_array = np.array(test_prediction_array).T
+				train_predict_proba,test_predict_proba = clf.predict_proba(train_x,train_y,test_x,model_parameter)
+				pickle.dump((train_predict_proba,test_predict_proba),open(filename,"w"))
 
-		return train_prediction_array,test_prediction_array
+			train_result_array.append(train_predict_proba)
+			test_result_array.append(test_predict_proba)
+		return np.array(train_result_array).T,np.array(test_result_array).T
+
+class EnsambleLayerMultiClassifier(EnsambleLayer):
+	def __init__(self):
+		pass
+
+	def predict_proba(self,train_x,train_y,test_x,parameters):
+		ensemble_parameters = parameters["ensemble_parameters"]
+		train_result_array = []
+		test_result_array = []
+		for parameter in ensemble_parameters:
+			clf = layer.ClassificationLayer()
+			model_parameter= parameter['model_parameter']
+			#parameter
+			clf = None
+			if not "type" in parameter:
+				print "This parameter is not set model parameter"
+				clf = layer.ClassificationMultiBaggingLayer()
+			elif parameter['type'] == 'bagging':
+				clf = layer.ClassificationMultiBaggingLayer()
+			else:
+				clf = layer.ClassificationLayer()
+
+			train_predict_proba,test_predict_proba = clf.predict_proba(train_x,train_y,test_x,model_parameter)
+
+			train_result_array.append(train_predict_proba)
+			test_result_array.append(test_predict_proba)
+			print train_predict_proba[0]
+		print np.hstack(train_result_array)[0]
+		return np.hstack(train_result_array),np.hstack(test_result_array)

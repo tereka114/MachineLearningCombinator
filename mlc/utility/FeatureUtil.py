@@ -134,7 +134,6 @@ def data_to_labeled_encoder(train,test,category_list,skip_list=[43]):
                 isStringColumn = True
                 break
         if i in category_list or isStringColumn:
-            print i,train[1371,i],type(train[1371,i])
             lbl = preprocessing.LabelEncoder()
             np.where(train[:,i] == -1)
             np.where(test[:,i] == -1)
