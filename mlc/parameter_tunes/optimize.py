@@ -1,10 +1,12 @@
 import numpy as np
+import time
 from hyperopt import hp,fmin,tpe,Trials
 from sklearn import cross_validation
 from ..utility.config import parameter_dictionary
 from ..utility.evaluation_functions import evaluate_function
 from ..utility.Util import model_select
 from ..utility.config import parameter_dictionary
+from ..utility.file_util import dictionary_in_list_convert_to_csv
 
 def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name):
 	"""
@@ -49,6 +51,10 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 			y_pred = np.expm1(clf.predict(x_test))
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
 			score = score
+		elif evaluate_function_name == "auc":
+			y_pred = clf.predict(x_test)
+			score = evaluate_function(y_test,y_pred,evaluate_function_name)
+			score = -score
 		cnt = cnt + 1
 		#print cnt,params['model'],score
 		print score
@@ -58,9 +64,9 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 	print "final result",evaluate_score
 	return evaluate_score
 
-def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parameter=None,max_evals=100):
+def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parameter=None,max_evals=100,n_folds=5,isWrite=True):
 	"""
-	using hyperopt
+	hyperopt model turning
 	"""
 	model_turning_params = None
 	if model_name == None and parameter == None:
@@ -77,7 +83,7 @@ def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parame
 	validation_indexs = []
 	cnt = 0
 
-	for train_index,test_index in cross_validation.KFold(n=len(x),n_folds=10):
+	for train_index,test_index in cross_validation.StratifiedKFold(y,n_folds=n_folds):
 		validation_indexs.append((train_index,test_index))
 
 	trials = Trials()
@@ -87,14 +93,31 @@ def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parame
 	best_param = fmin(function,param,
 		algo=tpe.suggest,max_evals=max_evals,trials=trials)
 	print "========================================================================"
-	print trials.trials[0]
-	print trials.trials[1]
+	print "write result to csv files"
+
+	if isWrite:
+		datas = []
+		for trial_data in trials.trials:
+			print trial_data
+			trial_parameter_dictionary = {}
+			trial_parameter_dictionary['model'] = model_name
+			trial_parameter_dictionary['tid'] = trial_data['misc']['tid']
+			for key,value in trial_data['misc']['vals'].items():
+				print key,value[0]
+				trial_parameter_dictionary[key] = value[0]
+			trial_parameter_dictionary['loss'] = trial_data['result']['loss']
+			trial_parameter_dictionary['status'] = trial_data['result']['status']
+			datas.append(trial_parameter_dictionary)
+		filename = str(time.time()) + ".csv"
+		dictionary_in_list_convert_to_csv(datas,filename)
+
+	print trials.statuses()
 	return best_param
 
-"""
-calculate linear weight for minimize function
-"""
 def optimize_linear_weight(params,train_x,train_y,evaluate_function_name):
+	"""
+	calculate linear weight for minimize function
+	"""
 	result = np.zeros(train_y[0].shape)
 	bagging_models = len(train_x)
 	sum_number = 0.0
