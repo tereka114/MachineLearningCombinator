@@ -31,7 +31,7 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 		y_pred = None
 		score = 0.0
 
-		y_pred = clf.predict(x_test)
+		#y_pred = clf.predict(x_test)
 		if evaluate_function_name == "accuracy":
 			y_pred = clf.predict(x_test)
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
@@ -52,8 +52,8 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
 			score = score
 		elif evaluate_function_name == "auc":
-			if parameter['model'] == "XGBREGLOGISTIC":
-				y_pred = clf.predict(x_test)
+			if params['model'] == "XGBREGLOGISTIC":
+				y_pred = clf.predict_proba(x_test)
 			else:
 				y_pred = clf.predict_proba(x_test)[:,1]
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
