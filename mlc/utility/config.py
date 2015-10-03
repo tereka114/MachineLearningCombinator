@@ -60,7 +60,7 @@ parameter_randomforest_classifier = {
 
 parameter_logisticclassifier_classifier = {
 	'model':'logistic_classifier',
-	'C': hp.loguniform("C", np.log(0.001), np.log(10))
+	'C': hp.loguniform("C", np.log(0.001), np.log(1000))
 }
 
 """
@@ -103,8 +103,8 @@ parameter_decisiontree_reg = {
 parameter_xgboost_linear_regression = {
 	'model':'XGBREGLINEAR',
 	'objective': 'reg:linear',
-	'num_round' : hp.quniform('n_estimators', 100, 3000, 1),
-	'eta' : hp.quniform('eta', 0.025, 0.1, 0.3, 0.5, 1.0),
+	'num_round' : hp.quniform('n_estimators', 100, 2000, 1),
+	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
 	'subsample': hp.quniform('subsample',0.5,01,0.05),
@@ -116,7 +116,7 @@ parameter_xgboost_logistic_regression = {
 	'model':'XGBREGLOGISTIC',
 	'objective': "binary:logistic",
 	'num_round' : hp.quniform('n_estimators', 100, 3000, 1),
-	'eta' : hp.quniform('eta', 0.025, 0.1, 0.3, 0.5, 1.0),
+	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
 	'subsample': hp.quniform('subsample',0.5,01,0.05),

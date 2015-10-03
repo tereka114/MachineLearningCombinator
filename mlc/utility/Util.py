@@ -48,7 +48,6 @@ def model_select(parameter):
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
 		params['scale_pos_weight'] = 1
-		params['gamma'] = parameter['gamma']
 		params['colsample_bytree'] = parameter['colsample_bytree']
 		return XGBoostRegressor(int(parameter['num_round']),**params)
 	elif model_name == 'XGBREGLOGISTIC':
@@ -59,7 +58,6 @@ def model_select(parameter):
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
 		params['scale_pos_weight'] = 1
-		params['gamma'] = parameter['gamma']
 		params['colsample_bytree'] = parameter['colsample_bytree']
 		params['eval_metric'] = "auc"
 		return XGBoostClassifier(int(parameter['num_round']),**params)
