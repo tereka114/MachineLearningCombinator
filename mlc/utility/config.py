@@ -19,8 +19,8 @@ else:
 	max_n_estimators = 500
 	step_n_estimators = 5
 	n_jobs = -1
-	xgb_min_num_round = 1500
-	xgb_max_num_round = 2000
+	xgb_min_num_round = 250
+	xgb_max_num_round = 500
 	xgb_num_round_step = 10
 
 BLENDING_TRAIN_DIR = "train"
@@ -103,7 +103,7 @@ parameter_decisiontree_reg = {
 parameter_xgboost_linear_regression = {
 	'model':'XGBREGLINEAR',
 	'objective': 'reg:linear',
-	'num_round' : hp.quniform('n_estimators', 100, 2000, 1),
+	'num_round' : hp.quniform('n_estimators', 100, 500, 1),
 	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
@@ -115,7 +115,6 @@ parameter_xgboost_linear_regression = {
 parameter_xgboost_logistic_regression = {
 	'model':'XGBREGLOGISTIC',
 	'objective': "binary:logistic",
-	'num_round' : hp.quniform('n_estimators', 100, 3000, 1),
 	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
