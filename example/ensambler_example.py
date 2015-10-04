@@ -1,7 +1,7 @@
 #coding:utf-8
 import mlc.layer.ensembler
 import json
-from sklearn.datasets import load_digits
+from sklearn.datasets import load_digits,load_diabetes
 from sklearn.cross_validation import train_test_split
 
 def ensambler_multi():
@@ -21,7 +21,7 @@ def ensambler_multi():
 	print train_predict.shape,test_predict.shape
 
 def ensambler_binary():
-	digits = digits = load_digits(n_class=2)
+	digits = load_digits(n_class=2)
 	x = digits.data
 	y = digits.target
 
@@ -36,6 +36,24 @@ def ensambler_binary():
 	
 	print train_predict.shape,test_predict.shape
 
+def ensambler_regression():
+	digits = load_diabetes()
+	x = digits.data
+	y = digits.target
+
+	parameter_file = "./parameter/ensamble_sample_reg.json"
+
+	x_train,x_test,y_train,y_test = train_test_split(x,y,test_size=0.2,random_state=42)
+
+	with open(parameter_file) as data_file:
+		    parameter = json.load(data_file)
+	clf = mlc.layer.ensembler.EnsambleLayerRegression()
+	train_predict,test_predict = clf.predict(x_train,y_train,x_test,parameter)
+	print train_predict
+
+	print train_predict.shape,test_predict.shape
+
 if __name__ == '__main__':
-	ensambler_multi()
-	ensambler_binary()
+	#ensambler_multi()
+	#ensambler_binary()
+	ensambler_regression()
