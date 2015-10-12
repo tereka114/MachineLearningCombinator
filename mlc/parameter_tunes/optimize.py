@@ -26,17 +26,18 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 		y_train, y_test = y[validation_index[0]],y[validation_index[1]]
 
 		clf = model_select(params)
-		clf.fit(x_train, y_train)
 
 		y_pred = None
 		score = 0.0
 
 		#y_pred = clf.predict(x_test)
 		if evaluate_function_name == "accuracy":
+			clf.fit(x_train, y_train)
 			y_pred = clf.predict(x_test)
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
 			score = -score
 		elif evaluate_function_name == "logloss":
+			clf.fit(x_train, y_train)
 			y_pred = clf.predict_proba(x_test)
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
 			score = -score
@@ -58,6 +59,11 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 				y_pred = clf.predict_proba(x_test)[:,1]
 			score = evaluate_function(y_test,y_pred,evaluate_function_name)
 			score = -score
+		elif evaluate_function_name == "rmspe":
+			clf.fit(x_train, np.log1p(y_train))
+			y_pred = np.expm1(clf.predict(x_test))
+			score = evaluate_function(y_test,y_pred,evaluate_function_name)
+			score = score
 		cnt = cnt + 1
 		#print cnt,params['model'],score
 		print score
@@ -67,7 +73,7 @@ def optimize_model_function(params,x,y,validation_indexs,evaluate_function_name)
 	print "final result",evaluate_score
 	return evaluate_score
 
-def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parameter=None,max_evals=100,n_folds=5,isWrite=True):
+def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parameter=None,max_evals=100,n_folds=5,isWrite=True,problem_pattern="classification"):
 	"""
 	hyperopt model turning
 	"""
@@ -86,8 +92,12 @@ def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parame
 	validation_indexs = []
 	cnt = 0
 
-	for train_index,test_index in cross_validation.StratifiedKFold(y,n_folds=n_folds):
-		validation_indexs.append((train_index,test_index))
+	if problem_pattern == "classification":
+		for train_index,test_index in cross_validation.StratifiedKFold(y,n_folds=n_folds):
+			validation_indexs.append((train_index,test_index))
+	else:
+		for train_index,test_index in cross_validation.KFold(len(y),n_folds=n_folds):
+			validation_indexs.append((train_index,test_index))
 
 	trials = Trials()
 	function = lambda param : optimize_model_function(param, x, y, validation_indexs,loss_function)
@@ -98,6 +108,7 @@ def optimize_model_parameter(x,y,model_name=None,loss_function="accuracy",parame
 	print "========================================================================"
 	print "write result to csv files"
 
+	#write the csv file
 	if isWrite:
 		datas = []
 		for trial_data in trials.trials:

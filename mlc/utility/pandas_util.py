@@ -137,6 +137,7 @@ def pandas_convert_time(df,columns,date_type=None,convert_function=None):
 
 	example:
 		spring data: 07JUL06:00:00:00
+
 	"""
 	add_columns_name = []
 
@@ -166,6 +167,39 @@ def pandas_convert_time(df,columns,date_type=None,convert_function=None):
 					year = time[0:2]
 					month = time[2:5]
 					day = time[5:7]
+
+				data_pair_list = [(year_column_name,year),(month_column_name,month),(day_column_name,day)]
+
+				for index,column_data in enumerate(data_pair_list):
+					column_name = column_data[0]
+					data = column_data[1]
+
+					if not column_name in df.columns:
+						df[column_name] = str(0)
+					df.ix[index,column_name] = data
+			del df[column]
+	elif "date" == date_type:
+		for column in columns:
+			year_column_name = "{}:YEAR".format(column)
+			month_column_name = "{}:MONTH".format(column)
+			day_column_name = "{}:DAY".format(column)
+
+			add_columns_name.append(year_column_name)
+			add_columns_name.append(month_column_name)
+			add_columns_name.append(day_column_name)
+
+			for value_index,time in enumerate(list(df[column].values)):
+				if value_index % 100000 == 0:
+					print value_index
+
+				year = "na"
+				month = "na"
+				day = "na"
+
+				if len(str(time)) == len("2015-09-17"):
+					year = time[0:4]
+					month = time[5:7]
+					day = time[8:-1]
 
 				data_pair_list = [(year_column_name,year),(month_column_name,month),(day_column_name,day)]
 

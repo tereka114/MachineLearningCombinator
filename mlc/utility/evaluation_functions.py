@@ -16,7 +16,49 @@ def logloss(y_true,y_pred):
 	return log_loss(y_true, y_pred)
 
 def mean_squared_error_func(y_true,y_pred):
-	return mean_squared_error(y_true, y_pred)
+    """
+    calculate mean squared error
+
+    :params y_true: true_data as np.array
+    :params y_pred: true_data as np.array
+    """
+    return mean_squared_error(y_true, y_pred)
+
+def ToWeight(y):
+    w = np.zeros(y.shape, dtype=float)
+    ind = y != 0
+    w[ind] = 1./(y[ind]**2)
+    return w
+
+
+def ToZero(y):
+    w = np.zeros(y.shape, dtype=float)
+    ind = y > 0
+    w[ind] = y[ind]
+    return w
+
+
+def rmspe(y, yhat):
+    w = ToWeight(y)
+    yhat = ToZero(yhat)
+    rmspe = np.sqrt(np.mean( w * (y - yhat)**2 ))
+    return rmspe
+
+# def rmspe(y_true,y_pred):
+#     """
+#     calculate (rmspe)
+#     """
+#     #print y_true
+#     #print y_pred
+#     x1 = y_true + 0.000001
+#     x2 = y_true - y_pred
+#     x3 = x2 / x1
+#     #print x3
+#     x4 = x3 * x3
+#     #print x4
+#     x5 = np.mean(x4)
+#     #print x5
+#     return np.sqrt(x5)
 
 def Gini(expected, predicted):
     assert expected.shape[0] == predicted.shape[0], 'unequal number of rows'
@@ -184,3 +226,5 @@ def evaluate_function(y_true,y_pred,eval_func):
         return roc_auc_truncated(y_true,y_pred)
     elif eval_func == "auc":
         return auc(y_true,y_pred)
+    elif eval_func == "rmspe":
+        return rmspe(y_true,y_pred)

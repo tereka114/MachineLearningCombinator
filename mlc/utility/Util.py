@@ -25,6 +25,7 @@ def model_select(parameter):
 			min_samples_leaf=int(parameter['min_samples_leaf']),
 			min_samples_split=int(parameter['min_samples_split']))
 	elif model_name == "RFREG":
+		print "RFREG"
 		return RandomForestRegressor(
 			n_estimators=int(parameter['n_estimators']),
 			max_features=parameter['max_features'],

@@ -20,7 +20,7 @@ else:
 	step_n_estimators = 5
 	n_jobs = -1
 	xgb_min_num_round = 250
-	xgb_max_num_round = 500
+	xgb_max_num_round = 2000
 	xgb_num_round_step = 10
 
 BLENDING_TRAIN_DIR = "train"

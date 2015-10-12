@@ -3,6 +3,7 @@
 import numpy as np
 import xgboost as xgb
 from sklearn.cross_validation import train_test_split
+import xgb_custom
 
 class XGBoostWrapper(object):
     def __init__(self,num_boost_round=5, **params):
@@ -78,17 +79,17 @@ class XGBoostRegressor(XGBoostWrapper):
         #evallist  = [(dtrain,'train')]
 
         if early_stopping == True:
-            xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,transform_y,test_size=0.2)
+            xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,transform_y,test_size=0.02)
             dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
             dvalid = xgb.DMatrix(xg_validate, label=xg_validate_y)
             #evallist  = [(dtrain,'train')]
 
             watchlist = [(dtrain,'train'),(dvalid,'val')]
-            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,early_stopping_rounds=80)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,early_stopping_rounds=80,feval=xgb_custom.rmspe_evaluation)
         else:
             dtrain = xgb.DMatrix(X, label=y)
             watchlist = [(dtrain,'train')]
-            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,feval=xgb_custom.rmspe_evaluation)
 
     def predict(self, X):
         dtest = xgb.DMatrix(X)

@@ -9,13 +9,6 @@ class EnsambleLayer(object):
 	def __init__(self):
 		pass
 
-	def predict(self,parameters):
-		pass
-
-class EnsambleLayerRegression(EnsambleLayer):
-	def __init__(self):
-		pass
-
 class EnsambleLayerBinaryClassifier(EnsambleLayer):
 	def __init__(self):
 		pass
@@ -82,3 +75,41 @@ class EnsambleLayerMultiClassifier(EnsambleLayer):
 			print train_predict_proba[0]
 		print np.hstack(train_result_array)[0]
 		return np.hstack(train_result_array),np.hstack(test_result_array)
+
+class EnsambleLayerRegression(EnsambleLayer):
+	def __init__(self):
+		pass
+
+	def predict(self,train_x,train_y,test_x,parameters):
+		ensemble_parameters = parameters["ensemble_parameters"]
+		folder_name = parameters["ensanble_name"]
+
+		train_result_array = []
+		test_result_array = []
+		train_predict_result = None
+		test_predict_result = None
+
+		for index,parameter in enumerate(ensemble_parameters):
+			clf = None
+			model_parameter= parameter['model_parameter']
+
+			filename = os.path.join(folder_name,str(index) + ".pkl")
+			create_directory(folder_name)
+
+			if os.path.exists(filename):
+				train_predict_proba,test_predict_proba = pickle.load(open(filename,"r"))
+			else:
+				if not "type" in parameter:
+					print "This parameter is not set model parameter"
+					clf = layer.RegressionBaggingLayer()
+				elif parameter['type'] == 'bagging':
+					clf = layer.RegressionBaggingLayer()
+				else:
+					clf = layer.RegressionBaggingLayer()
+
+				train_predict_result,test_predict_result = clf.predict(train_x,train_y,test_x,model_parameter)
+				pickle.dump((train_predict_result,test_predict_result),open(filename,"w"))
+
+			train_result_array.append(train_predict_result)
+			test_result_array.append(test_predict_result)
+		return np.array(train_result_array).T,np.array(test_result_array).T
