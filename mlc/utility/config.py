@@ -3,7 +3,7 @@ from hyperopt import hp
 import numpy as np
 
 parameter_dictionary = {}
-
+modelRandomSeed = 2015
 debug_mode = False
 
 if debug_mode:
@@ -70,7 +70,8 @@ parameter_svr_regression = {
 	'model':'SVR',
 	'C': hp.loguniform("C", np.log(1), np.log(100)),
 	'gamma': hp.loguniform("gamma", np.log(0.001), np.log(0.1)),
-	'kernel': 'rbf'
+	'kernel': 'rbf',
+	'random_state' : modelRandomSeed
 }
 
 parameter_randomforest_regression = {
@@ -82,6 +83,7 @@ parameter_randomforest_regression = {
 	'min_samples_split':hp.quniform("min_samples_split",1.0,5.0,1.0),
 	'max_depth':hp.quniform("max_depth",3.0,50.0,1.0),
 	'n_jobs':n_jobs,
+	'random_state' : modelRandomSeed
 }
 
 parameter_extratree_reg = {
@@ -90,26 +92,41 @@ parameter_extratree_reg = {
 	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
 	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
 	'n_estimators':100,
+	'random_state' : modelRandomSeed
 }
-
-# parameter_decisiontree_reg = {
-# 	'model':'EXTREEREG',
-# 	'max_depth':hp.quniform("max_depth",3.0,20.0,1.0),
-# 	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
-# 	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
-# 	'n_estimators':500,
-# }
 
 parameter_xgboost_linear_regression = {
 	'model':'XGBREGLINEAR',
 	'objective': 'reg:linear',
+	'booster' : 'gblinear',
 	'num_round' : hp.quniform('n_estimators', 500, 2000, 1),
-	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
+	'eta' : hp.quniform('eta', 0.01, 1, 0.01),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
-	'subsample': hp.quniform('subsample',0.5,01,0.05),
+	'subsample': hp.quniform('subsample',0.5,1,0.1),
 	"colsample_bytree": hp.quniform('colsample_bytree',0.5,1,0.05),
-	'gamma' : hp.quniform('gamma', 0.5, 1, 0.05)
+	"alpha": hp.quniform("alpha",0,0.5,0.005),
+	"lambda": hp.quniform('lambda',0,5,0.05),
+	"lambda_bias":hp.quniform('lambda_bias',0,3,0.1),
+	'gamma' : hp.quniform('gamma', 0.5, 1, 0.05),
+	'seed' : modelRandomSeed
+}
+
+parameter_xgboost_tree_regression = {
+	'model':'XGBREGTREE',
+	'objective': 'reg:linear',
+	'booster': 'gbtree',
+	'num_round' : hp.quniform('n_estimators', 500, 2000, 1),
+	'eta' : hp.quniform('eta', 0.01, 1, 0.01),
+	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
+	'max_depth': hp.quniform('max_depth',4,20,1),
+	'subsample': hp.quniform('subsample',0.5,1,0.1),
+	"colsample_bytree": hp.quniform('colsample_bytree',0.5,1,0.05),
+	"alpha": hp.quniform("alpha",0,0.5,0.005),
+	"lambda": hp.quniform('lambda',0,5,0.05),
+	"lambda_bias":hp.quniform('lambda_bias',0,3,0.1),
+	'gamma' : hp.quniform('gamma', 0.5, 1, 0.05),
+	'seed' : modelRandomSeed
 }
 
 parameter_xgboost_logistic_regression = {
@@ -121,16 +138,19 @@ parameter_xgboost_logistic_regression = {
 	'subsample': hp.quniform('subsample',0.5,01,0.05),
 	"colsample_bytree": hp.quniform('colsample_bytree',0.5,1,0.05),
 	'num_round' : hp.quniform('num_round', xgb_min_num_round, xgb_max_num_round, xgb_num_round_step),
+	'seed' : modelRandomSeed
 }
 
 parameter_skl_ridge = {
 	'model':'RIDGE',
 	'alpha': hp.loguniform("alpha", np.log(0.01), np.log(20)),
+	'random_state' : modelRandomSeed
 }
 
 parameter_skl_lasso = {
     'model':'LASSO',
     'alpha': hp.loguniform("alpha", np.log(0.00001), np.log(0.1)),
+    'random_state' : modelRandomSeed
 }
 
 parameter_chainer_regression = {
