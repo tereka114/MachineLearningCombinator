@@ -118,6 +118,7 @@ class NeuralNetwork(object):
             target_var = T.matrix('y')
         elif self.problem_type == "classification":
             n_classes = len(set(train_y))
+            self.n_classes = n_classes
             print ("classification model Lasagne Neural Network")
             self.loss_function_type = "cross_entropy_loss"
             train_y_copy = train_y.copy().astype(np.uint8)
@@ -126,14 +127,12 @@ class NeuralNetwork(object):
         if valid is True:
             print ("start split train and valid")
             split_train_x, valid_x, split_train_y, valid_y = train_test_split(
-                train_x_copy, train_y_copy, test_size=0.1)
+                train_x_copy, train_y_copy, test_size=0.01)
         else:
             split_train_x, split_train_y = train_x_copy, train_y_copy
 
         N, input_dim = split_train_x.shape
         self.setModel(input_dim, n_classes, input_var)
-
-        batch_size = self.batch_size
         prediction = lasagne.layers.get_output(self.neural_network)
 
         loss = None
@@ -180,7 +179,6 @@ class NeuralNetwork(object):
 
         self.prediction_fc = theano.function([input_var], test_prediction)
 
-        nlist = np.arange(N)
         print("Starting training...")
         num_epochs = self.epochs
         for epoch in xrange(num_epochs):
@@ -209,32 +207,22 @@ class NeuralNetwork(object):
                         err = val_fn(inputs, targets)
                     val_err += err
                     val_batches += 1
+                #print("  valid loss:\t\t{:.6f}".format(val_err / val_batches))
 
             # Then we print the results for this epoch:
             print("Epoch {} of {} took {:.3f}s".format(
                 epoch + 1, num_epochs, time.time() - start_time))
             print("  training loss:\t\t{:.6f}".format(
                 train_err / train_batches))
-            # you need to modify following script
-
-            # if valid:
-            #     print val_err, val_batches
-            #     print("  validation loss:\t\t{:.6f}".format(
-            #         val_err / val_batches))
-            #     if self.problem_type == "classification":
-            #         print("  validation accuracy:\t\t{:.2f} %".format(
-            #             val_acc / val_batches * 100))
-            #         valid_preds = self.prediction_fc(valid_x)[:, 1]
-            #         roc = metrics.roc_auc_score(valid_y, valid_preds)
-            #         print("  roc score:\t\t{:.6f}".format(roc))
 
     def predict(self, x):
-        y = self.prediction_fc(x.astype(np.float32))
-        return y.reshape(len(y))
+        if self.problem_type == "regression":
+            y = self.prediction_fc(x.astype(np.float32))
+            return y.reshape(len(y))
+        elif self.problem_type == "classification":
+            y = self.prediction_fc(x.astype(np.float32))
+            return np.argmax(y,axis=1)
 
     def predict_proba(self, x):
         y = self.prediction_fc(x)
         return y
-
-if __name__ == '__main__':
-    test()
