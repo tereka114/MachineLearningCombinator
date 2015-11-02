@@ -79,13 +79,13 @@ class XGBoostRegressor(XGBoostWrapper):
         #evallist  = [(dtrain,'train')]
 
         if early_stopping == True:
-            xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,transform_y,test_size=0.02)
+            xg_train,xg_validate,xg_train_y,xg_validate_y = train_test_split(X,transform_y,test_size=0.012)
             dtrain = xgb.DMatrix(xg_train, label=xg_train_y)
             dvalid = xgb.DMatrix(xg_validate, label=xg_validate_y)
             #evallist  = [(dtrain,'train')]
 
             watchlist = [(dtrain,'train'),(dvalid,'val')]
-            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,early_stopping_rounds=80,feval=xgb_custom.rmspe_evaluation)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100,feval=xgb_custom.rmspe_evaluation)
         else:
             dtrain = xgb.DMatrix(X, label=y)
             watchlist = [(dtrain,'train')]

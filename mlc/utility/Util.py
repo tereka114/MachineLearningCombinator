@@ -25,7 +25,6 @@ def model_select(parameter):
 			min_samples_leaf=int(parameter['min_samples_leaf']),
 			min_samples_split=int(parameter['min_samples_split']))
 	elif model_name == "RFREG":
-		print "RFREG"
 		return RandomForestRegressor(
 			n_estimators=int(parameter['n_estimators']),
 			max_features=parameter['max_features'],
@@ -45,11 +44,11 @@ def model_select(parameter):
 		params = {}
 		params['objective'] = parameter['objective']
 		params['eta'] = parameter['eta']
-		params['min_child_weight'] = int(parameter['min_child_weight'])
+		#params['min_child_weight'] = int(parameter['min_child_weight'])
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
-		params['scale_pos_weight'] = 1
 		params['colsample_bytree'] = parameter['colsample_bytree']
+		params['silent'] = 1
 		return XGBoostRegressor(int(parameter['num_round']),**params)
 	elif model_name == 'XGBREGLOGISTIC':
 		params = {}
@@ -58,9 +57,9 @@ def model_select(parameter):
 		params['min_child_weight'] = int(parameter['min_child_weight'])
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
-		params['scale_pos_weight'] = 1
 		params['colsample_bytree'] = parameter['colsample_bytree']
 		params['eval_metric'] = "auc"
+		params['silent'] = 1
 		return XGBoostClassifier(int(parameter['num_round']),**params)
 	elif model_name == 'LASSO':
 		return Lasso(alpha=parameter['alpha'], normalize=True)

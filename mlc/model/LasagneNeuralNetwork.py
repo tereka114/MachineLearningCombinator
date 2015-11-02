@@ -67,25 +67,25 @@ class NeuralNetwork(object):
 
         self.neural_network = neural_network
 
-    def select_update_function(self,loss,params,update_function_type):
-    	if update_function_type == "adam":
-    	    updates = lasagne.updates.adam(loss, params)
-    	elif update_function_type == "sgd":
-    	    updates = lasagne.updates.sgd(loss, params, 0.01)
-    	elif update_function_type == "nesterov_momentum":
-    	    updates = lasagne.updates.nesterov_momentum(
-    	        loss, params, learning_rate=0.01, momentum=0.9)
-    	return updates
+    def select_update_function(self, loss, params, update_function_type):
+        if update_function_type == "adam":
+            updates = lasagne.updates.adam(loss, params)
+        elif update_function_type == "sgd":
+            updates = lasagne.updates.sgd(loss, params, 0.01)
+        elif update_function_type == "nesterov_momentum":
+            updates = lasagne.updates.nesterov_momentum(
+                loss, params, learning_rate=0.01, momentum=0.9)
+        return updates
 
-    def select_loss_function(self, prediction,target_var,function_type):
-    	if self.loss_function_type == "mean_squared_loss":
-    	    print ("mean_squared_loss")
-    	    loss = lasagne.objectives.squared_error(prediction, target_var)
-    	elif self.loss_function_type == "cross_entropy_loss":
-    	    print ("cross entropy loss")
-    	    loss = lasagne.objectives.categorical_crossentropy(
-    	        prediction, target_var)
-    	return loss
+    def select_loss_function(self, prediction, target_var, function_type):
+        if self.loss_function_type == "mean_squared_loss":
+            print ("mean_squared_loss")
+            loss = lasagne.objectives.squared_error(prediction, target_var)
+        elif self.loss_function_type == "cross_entropy_loss":
+            print ("cross entropy loss")
+            loss = lasagne.objectives.categorical_crossentropy(
+                prediction, target_var)
+        return loss
 
     def iterate_minibatches(self, inputs, targets, batchsize, shuffle=False):
         assert len(inputs) == len(targets)
@@ -117,9 +117,11 @@ class NeuralNetwork(object):
 
             target_var = T.matrix('y')
         elif self.problem_type == "classification":
-            n_classes = 2
+            n_classes = len(set(train_y))
+            print ("classification model Lasagne Neural Network")
             self.loss_function_type = "cross_entropy_loss"
             train_y_copy = train_y.copy().astype(np.uint8)
+            target_var = T.ivector('targets')
 
         if valid is True:
             print ("start split train and valid")
@@ -127,7 +129,6 @@ class NeuralNetwork(object):
                 train_x_copy, train_y_copy, test_size=0.1)
         else:
             split_train_x, split_train_y = train_x_copy, train_y_copy
-            target_var = T.ivector('targets')
 
         N, input_dim = split_train_x.shape
         self.setModel(input_dim, n_classes, input_var)
@@ -152,14 +153,16 @@ class NeuralNetwork(object):
             self.neural_network, trainable=True)
 
         update_function_type = "nesterov_momentum"
-        updates = self.select_update_function(loss,params,update_function_type)
+        updates = self.select_update_function(
+            loss, params, update_function_type)
 
         test_prediction = lasagne.layers.get_output(
             self.neural_network, deterministic=True)
         train_fn = theano.function(
             [input_var, target_var], loss, updates=updates)
 
-        test_loss = self.select_loss_function(test_prediction, target_var, self.loss_function_type)
+        test_loss = self.select_loss_function(
+            test_prediction, target_var, self.loss_function_type)
 
         # define test function
         val_fn = None

@@ -1,21 +1,27 @@
 import numpy as np
-from sklearn.metrics import accuracy_score,log_loss,mean_squared_error,roc_curve, auc,roc_auc_score
+from sklearn.metrics import accuracy_score, log_loss, mean_squared_error, roc_curve, auc, roc_auc_score
 """
 evaluate function for created models
 """
+
+
 def weighted_kappa():
-	pass
+    pass
 
-def auc(y_true,y_pred):
-    return roc_auc_score(y_true,y_pred)
 
-def accuracy(y_true,y_pred):
-	return accuracy_score(y_true,y_pred)
+def auc(y_true, y_pred):
+    return roc_auc_score(y_true, y_pred)
 
-def logloss(y_true,y_pred):
-	return log_loss(y_true, y_pred)
 
-def mean_squared_error_func(y_true,y_pred):
+def accuracy(y_true, y_pred):
+    return accuracy_score(y_true, y_pred)
+
+
+def logloss(y_true, y_pred):
+    return log_loss(y_true, y_pred)
+
+
+def mean_squared_error_func(y_true, y_pred):
     """
     calculate mean squared error
 
@@ -24,10 +30,11 @@ def mean_squared_error_func(y_true,y_pred):
     """
     return mean_squared_error(y_true, y_pred)
 
+
 def ToWeight(y):
     w = np.zeros(y.shape, dtype=float)
     ind = y != 0
-    w[ind] = 1./(y[ind]**2)
+    w[ind] = 1. / (y[ind]**2)
     return w
 
 
@@ -41,7 +48,7 @@ def ToZero(y):
 def rmspe(y, yhat):
     w = ToWeight(y)
     yhat = ToZero(yhat)
-    rmspe = np.sqrt(np.mean( w * (y - yhat)**2 ))
+    rmspe = np.sqrt(np.mean(w * (y - yhat)**2))
     return rmspe
 
 # def rmspe(y_true,y_pred):
@@ -59,6 +66,7 @@ def rmspe(y, yhat):
 #     x5 = np.mean(x4)
 #     #print x5
 #     return np.sqrt(x5)
+
 
 def Gini(expected, predicted):
     assert expected.shape[0] == predicted.shape[0], 'unequal number of rows'
@@ -81,12 +89,15 @@ def Gini(expected, predicted):
     gini_sum -= (expected.shape[0] + 1.0) / 2.0
     return gini_sum / expected.shape[0]
 
+
 def gini_normalized(expected, predicted):
     return Gini(expected, predicted) / Gini(expected, expected)
 
+
 def rmsle(y, y0):
     assert len(y) == len(y0)
-    return np.sqrt(np.mean(np.power(np.log1p(y)-np.log1p(y0), 2)))
+    return np.sqrt(np.mean(np.power(np.log1p(y) - np.log1p(y0), 2)))
+
 
 def __rolling_window(data, window_size):
     """
@@ -111,8 +122,10 @@ def __cvm(subindices, total_events):
     :param total_events: count of events in the second distribution
     :return: cvm metric
     """
-    target_distribution = np.arange(1, total_events + 1, dtype='float') / total_events
-    subarray_distribution = np.cumsum(np.bincount(subindices, minlength=total_events), dtype='float')
+    target_distribution = np.arange(
+        1, total_events + 1, dtype='float') / total_events
+    subarray_distribution = np.cumsum(np.bincount(
+        subindices, minlength=total_events), dtype='float')
     subarray_distribution /= 1.0 * subarray_distribution[-1]
     return np.mean((target_distribution - subarray_distribution) ** 2)
 
@@ -134,10 +147,13 @@ def compute_cvm(predictions, masses, n_neighbours=200, step=50):
     # First, reorder by masses
     predictions = predictions[np.argsort(masses)]
 
-    # Second, replace probabilities with order of probability among other events
-    predictions = np.argsort(np.argsort(predictions, kind='mergesort'), kind='mergesort')
+    # Second, replace probabilities with order of probability among other
+    # events
+    predictions = np.argsort(np.argsort(
+        predictions, kind='mergesort'), kind='mergesort')
 
-    # Now, each window forms a group, and we can compute contribution of each group to CvM
+    # Now, each window forms a group, and we can compute contribution of each
+    # group to CvM
     cvms = []
     for window in __rolling_window(predictions, window_size=n_neighbours)[::step]:
         cvms.append(__cvm(subindices=window, total_events=len(predictions)))
@@ -169,19 +185,25 @@ def compute_ks(data_prediction, mc_prediction, weights_data, weights_mc):
     :param weights_mc: array-like, Monte Carlo weights
     :return: ks value
     """
-    assert len(data_prediction) == len(weights_data), 'Data length and weight one must be the same'
-    assert len(mc_prediction) == len(weights_mc), 'Data length and weight one must be the same'
+    assert len(data_prediction) == len(
+        weights_data), 'Data length and weight one must be the same'
+    assert len(mc_prediction) == len(
+        weights_mc), 'Data length and weight one must be the same'
 
-    data_prediction, mc_prediction = np.array(data_prediction), np.array(mc_prediction)
+    data_prediction, mc_prediction = np.array(
+        data_prediction), np.array(mc_prediction)
     weights_data, weights_mc = np.array(weights_data), np.array(weights_mc)
 
-    assert np.all(data_prediction >= 0.) and np.all(data_prediction <= 1.), 'Data predictions are out of range [0, 1]'
-    assert np.all(mc_prediction >= 0.) and np.all(mc_prediction <= 1.), 'MC predictions are out of range [0, 1]'
+    assert np.all(data_prediction >= 0.) and np.all(
+        data_prediction <= 1.), 'Data predictions are out of range [0, 1]'
+    assert np.all(mc_prediction >= 0.) and np.all(
+        mc_prediction <= 1.), 'MC predictions are out of range [0, 1]'
 
     weights_data /= np.sum(weights_data)
     weights_mc /= np.sum(weights_mc)
 
-    fpr, tpr = __roc_curve_splitted(data_prediction, mc_prediction, weights_data, weights_mc)
+    fpr, tpr = __roc_curve_splitted(
+        data_prediction, mc_prediction, weights_data, weights_mc)
 
     Dnm = np.max(np.abs(fpr - tpr))
     return Dnm
@@ -197,34 +219,40 @@ def roc_auc_truncated(labels, predictions, tpr_thresholds=(0.2, 0.4, 0.6, 0.8),
     :param roc_weights: array-like, weights for true positive rate segments
     :return: weighted AUC
     """
-    assert np.all(predictions >= 0.) and np.all(predictions <= 1.), 'Data predictions are out of range [0, 1]'
-    assert len(tpr_thresholds) + 1 == len(roc_weights), 'Incompatible lengths of thresholds and weights'
+    assert np.all(predictions >= 0.) and np.all(
+        predictions <= 1.), 'Data predictions are out of range [0, 1]'
+    assert len(tpr_thresholds) + \
+        1 == len(roc_weights), 'Incompatible lengths of thresholds and weights'
     fpr, tpr, _ = roc_curve(labels, predictions)
     area = 0.
     tpr_thresholds = [0.] + list(tpr_thresholds) + [1.]
     for index in range(1, len(tpr_thresholds)):
         tpr_cut = np.minimum(tpr, tpr_thresholds[index])
         tpr_previous = np.minimum(tpr, tpr_thresholds[index - 1])
-        area += roc_weights[index - 1] * (auc(fpr, tpr_cut, reorder=True) - auc(fpr, tpr_previous, reorder=True))
+        area += roc_weights[index - 1] * \
+            (auc(fpr, tpr_cut, reorder=True) -
+             auc(fpr, tpr_previous, reorder=True))
     tpr_thresholds = np.array(tpr_thresholds)
     # roc auc normalization to be 1 for an ideal classifier
-    area /= np.sum((tpr_thresholds[1:] - tpr_thresholds[:-1]) * np.array(roc_weights))
+    area /= np.sum((tpr_thresholds[1:] -
+                    tpr_thresholds[:-1]) * np.array(roc_weights))
     return area
 
-def evaluate_function(y_true,y_pred,eval_func):
+
+def evaluate_function(y_true, y_pred, eval_func):
     if eval_func == "accuracy":
-		return accuracy(y_true,y_pred)
+        return accuracy(y_true, y_pred)
     elif eval_func == "logloss":
-		return logloss(y_true, y_pred)
+        return logloss(y_true, y_pred)
     elif eval_func == "mean_squared_error":
-		return mean_squared_error_func(y_true, y_pred)
+        return mean_squared_error_func(y_true, y_pred)
     elif eval_func == "gini":
-		return gini_normalized(y_true, y_pred)
+        return gini_normalized(y_true, y_pred)
     elif eval_func == "rmsle":
-        return rmsle(y_true,y_pred)
+        return rmsle(y_true, y_pred)
     elif eval_func == "area_auc":
-        return roc_auc_truncated(y_true,y_pred)
+        return roc_auc_truncated(y_true, y_pred)
     elif eval_func == "auc":
-        return auc(y_true,y_pred)
+        return auc(y_true, y_pred)
     elif eval_func == "rmspe":
-        return rmspe(y_true,y_pred)
+        return rmspe(y_true, y_pred)

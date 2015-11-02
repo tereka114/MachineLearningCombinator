@@ -54,7 +54,7 @@ parameter_randomforest_classifier = {
 	'criterion':'mse',
 	'min_samples_leaf':hp.quniform("min_samples_leaf",1.0,5.0,1.0),
 	'min_samples_split':hp.quniform("min_samples_split",1.0,5.0,1.0),
-	'max_depth':hp.quniform("max_depth",3.0,30.0,1.0),
+	'max_depth':hp.quniform("max_depth",3.0,50.0,1.0),
 	'n_jobs':n_jobs,
 }
 
@@ -75,35 +75,35 @@ parameter_svr_regression = {
 
 parameter_randomforest_regression = {
 	'model':'RFREG',
-	'n_estimators':500,
+	'n_estimators':100,
 	'max_features':hp.quniform("max_features",0.5,1.0,0.05),
 	'criterion':'mse',
 	'min_samples_leaf':hp.quniform("min_samples_leaf",1.0,5.0,1.0),
 	'min_samples_split':hp.quniform("min_samples_split",1.0,5.0,1.0),
-	'max_depth':hp.quniform("max_depth",3.0,30.0,1.0),
+	'max_depth':hp.quniform("max_depth",3.0,50.0,1.0),
 	'n_jobs':n_jobs,
 }
 
 parameter_extratree_reg = {
 	'model':'EXTREEREG',
-	'max_depth':hp.quniform("max_depth",3.0,20.0,1.0),
+	'max_depth':hp.quniform("max_depth",3.0,50.0,1.0),
 	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
 	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
-	'n_estimators':500,
+	'n_estimators':100,
 }
 
-parameter_decisiontree_reg = {
-	'model':'EXTREEREG',
-	'max_depth':hp.quniform("max_depth",3.0,20.0,1.0),
-	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
-	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
-	'n_estimators':500,
-}
+# parameter_decisiontree_reg = {
+# 	'model':'EXTREEREG',
+# 	'max_depth':hp.quniform("max_depth",3.0,20.0,1.0),
+# 	'min_sample_leaf':hp.quniform("min_sample_leaf",1.0,10.0,1.0),
+# 	'min_samples_split':hp.quniform("min_samples_split",1.0,10.0,1.0),
+# 	'n_estimators':500,
+# }
 
 parameter_xgboost_linear_regression = {
 	'model':'XGBREGLINEAR',
 	'objective': 'reg:linear',
-	'num_round' : hp.quniform('n_estimators', 100, 500, 1),
+	'num_round' : hp.quniform('n_estimators', 500, 2000, 1),
 	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
 	'max_depth': hp.quniform('max_depth',4,20,1),
