@@ -9,6 +9,7 @@ import pickle
 import pandas as pd
 import logging
 import csv
+import time
 from ..utility.config import parameter_dictionary
 from ..utility.evaluation_functions import evaluate_function
 from ..utility.Util import model_select
@@ -259,7 +260,8 @@ def optimize_model_parameter_validation(x, y, model_name=None, loss_function="ac
 
     print trials.statuses()
     return best_param
-    def model_evaluation(clf, x, y, evaluate_function_name,labeled_type,label_convert_type="normal"):
+
+    def model_evaluation(clf, x, y, evaluate_function_name, labeled_type, label_convert_type="normal"):
         if evaluate_function_name == "accuracy":
             y_pred = clf.predict(x)
             score = evaluate_function(
@@ -302,57 +304,39 @@ def optimize_model_parameter_validation(x, y, model_name=None, loss_function="ac
             score = score
         return score
 
+
 class Optimization(object):
+
     def __init__(self):
         pass
 
     def cross_validation_optimize(self, x, y, feature_name, runs=1, kfolds=5, problem_type="regression", isOverWrite=False):
         for run in xrange(runs):
+            random_seed = 2015 + 1000 * (run + 1)
+
             kfold_indexs = None
             if problem_type == "regression":
                 kfold_indexs = cross_validation.KFold(
-                    n=len(x), n_folds=kfolds, shuffle=True)
+                    n=len(x), n_folds=kfolds, shuffle=True, random_state=random_seed)
             elif problem_type == "classification" or problem_type == "binary_classification":
-                kfold_indexs = cross_validation.StratifiedKFold(labels=y, n_folds=kfolds,shuffle=True, random_state=None)
-            kfold = 0
-            for train_index, valid_index in kfold_indexs:
-                train_data_dir = "./{}/Runs{}/Train".format(
-                    feature_name, str(run))
-                valid_data_dir = "./{}/Runs{}/Valid".format(
-                    feature_name, str(run))
+                kfold_indexs = cross_validation.StratifiedKFold(
+                    labels=y, n_folds=kfolds, shuffle=True, random_state=random_seed)
 
-                # if you don't create the train directory, this line create
-                # it.
-                if not os.path.exists(train_data_dir):
-                    os.makedirs(train_data_dir)
+            if not os.path.exists("./CrossValidationIndexs"):
+                os.makedirs("./CrossValidationIndexs")
 
-                # if you don't create the valid directory, this line create
-                # it.
-                if not os.path.exists(valid_data_dir):
-                    os.makedirs(valid_data_dir)
+            data_path = "./CrossValidationIndexs/Runs{}.pkl".format(run)
 
-                train_data_file = "Kfold{}.pkl".format(str(kfold))
-                valid_data_file = "Kfold{}.pkl".format(str(kfold))
+            if isOverWrite or not os.path.exists(data_path):
+                logging.info("create kfold data")
+                pickle.dump(kfold_indexs, open(data_path, 'w'))
+            else:
+                logging.info(
+                    "this data exist in these pathes. Don't need creation")
 
-                train_data_path = os.path.join(
-                    train_data_dir, train_data_file)
-                valid_data_path = os.path.join(
-                    valid_data_dir, valid_data_file)
-
-                train_data = (x[train_index], y[train_index])
-                valid_data = (x[valid_index], y[valid_index])
-
-                if isOverWrite or not os.path.exists(train_data_file) or not os.path.exists(valid_data_path):
-                    pickle.dump(train_data, open(train_data_path, 'w'))
-                    pickle.dump(valid_data, open(valid_data_path, 'w'))
-
-                kfold += 1
-            """
-            Todo: you need to implement classification kfold
-            """
-            pass
-
-    def optimize(self, x=None, y=None, parameter=None, max_evals=10, runs=1, kfolds=5, feature_name="feature_name", evaluate_function_name="rmsle", problem_type="regression", isWriteCsv=False, isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False):
+    def optimize(self, x=None, y=None, test_x=None,parameter=None, max_evals=10, runs=1, kfolds=5, 
+        feature_name="feature_name", evaluate_function_name="rmsle", problem_type="regression", isWriteCsv=False, 
+        isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False):
         self.cross_validation_optimize(
             x, y, feature_name, runs, kfolds, problem_type, isOverWrite)
 
@@ -360,16 +344,22 @@ class Optimization(object):
         trials = Trials()
 
         self.trial_counter = 0
-        # log file
-        self.log_file_path = "log_file_{}_{}.log".format(feature_name, model)
-        self.result_files = "result_{}_{}.csv".format(feature_name, model)
+        if not os.path.exists("./log"):
+            os.makedirs("./log")
 
-        # configure of logging
+        if not os.path.exists("./result"):
+            os.makedirs("./result")
+
+        self.result_files = "result/result_{}_{}.csv".format(
+            feature_name, model)
+        self.log_file_path = "log/log_{:5f}.log".format(time.time())
+        print self.log_file_path
+
         logging.basicConfig(level=logging.DEBUG,
                             format='%(asctime)s %(name)-12s %(levelname)-8s %(message)s',
                             datefmt='%m-%d %H:%M',
                             filename=self.log_file_path,
-                            filemode='w')
+                            filemode="w")
 
         writer = open(self.result_files, "wb")
         writer = csv.writer(writer)
@@ -378,7 +368,7 @@ class Optimization(object):
         header = ["trial"]
         parameter_header = [k for k, v in parameter.items()]
         header += parameter_header
-        header = ["trial_mean", "trial_std"]
+        header += ["trial_mean", "trial_std"]
 
         writer.writerow(header)
         self.writer = writer
@@ -387,22 +377,23 @@ class Optimization(object):
 
         # execute hyperopt function for optimization parameters
         function = lambda parameter: self.hyperopt_optimization(
-            x, y, parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
+            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
         best_parameter = fmin(
             function, parameter, algo=tpe.suggest, max_evals=max_evals, trials=trials)
 
         return best_parameter
 
-    def hyperopt_optimization(self, x=None, y=None, parameter=None, runs=1, kfolds=5, feature_name="feature_name", evaluate_function_name="evaluation", problem_type="regression", isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV"):
+    def hyperopt_optimization(self, x=None, y=None, test_x=None,parameter=None, runs=1, kfolds=5, feature_name="feature_name", evaluate_function_name="evaluation", problem_type="regression", isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV"):
         # create csv log data
         parameter_log_data = [self.trial_counter]
         parameter_log_data.extend([parameter[parameter_column]
                                    for parameter_column in self.parameter_header])
 
-        logging.info("{} time optimization start".format(str(self.trial_counter)))
+        logging.info("{} time optimization start".format(
+            str(self.trial_counter)))
 
         scores_mean, scores_valid = self.hyperopt_wrapper_function(
-            x, y, parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, self.trial_counter, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
+            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, self.trial_counter, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
 
         parameter_log_data.append(scores_mean)
         parameter_log_data.append(scores_valid)
@@ -423,34 +414,39 @@ class Optimization(object):
             return np.expm1(y)
         return y
 
-    def model_evaluation(self,clf, x, y, evaluate_function_name,label_convert_type="normal"):
+    def model_evaluation(self, clf, x, y, evaluate_function_name, label_convert_type="normal"):
         if evaluate_function_name == "accuracy":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
             score = -score
         elif evaluate_function_name == "logloss":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
             train_score = -score
         elif evaluate_function_name == "mean_squared_error":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
+            score = evaluate_function(
+                y, y_pred, evaluate_function_name)
+        elif evaluate_function_name == "rmse":
+            y_pred = clf.predict(x)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
         elif evaluate_function_name == "gini":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
             score = -score
             train_score = -train_score
         elif evaluate_function_name == "rmsle":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
         elif evaluate_function_name == "auc":
@@ -466,13 +462,13 @@ class Optimization(object):
             train_score = -train_score
         elif evaluate_function_name == "rmspe":
             y_pred = clf.predict(x)
-            y_pred = self.labeled_after_process(y_pred,label_convert_type)
+            y_pred = self.labeled_after_process(y_pred, label_convert_type)
             score = evaluate_function(
                 y, y_pred, evaluate_function_name)
             score = score
         return score
 
-    def hyperopt_wrapper_function(self, x, y, parameter, runs, kfolds, feature_name,
+    def hyperopt_wrapper_function(self, x, y, test_x,parameter, runs, kfolds, feature_name,
                                   evaluate_function_name, problem_type, trial_counter, isWriteCsv=False, isBagging=False,
                                   id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV", label_convert_type="normal"):
         """
@@ -482,23 +478,22 @@ class Optimization(object):
         scores = np.zeros((runs, kfolds))
 
         # check
-        if x == None or y == None:
-            logging.info("you should set the train vector and test vector")
-            return None
+        # if x == None or y == None:
+        #     logging.info("you should set the train vector and test vector")
+        #     return None
 
         # calculate score
         for run in xrange(runs):
-            for kfold in xrange(kfolds):
-                logging.info("runs:{} kfold:{} model:{}".format(
-                    str(run), str(kfold), model_name))
+            data_path = "./CrossValidationIndexs/Runs{}.pkl".format(
+                run, feature_name)
+            kfolds_index = pickle.load(open(data_path))
+            kfold = 0
+            for train_index, valid_index in kfolds_index:
+                logging.info("runs:{} kfold:{} model:{} train index length:{} test index length:{}".format(
+                    str(run), str(kfold), model_name, len(train_index), len(valid_index)))
 
-                train_path = "./{}/Runs{}/Train/Kfold{}.pkl".format(
-                    feature_name, str(run), str(kfold))
-                valid_path = "./{}/Runs{}/Valid/Kfold{}.pkl".format(
-                    feature_name, str(run), str(kfold))
-
-                kfold_train_x, kfold_train_y = pickle.load(open(train_path))
-                kfold_valid_x, kfold_valid_y = pickle.load(open(valid_path))
+                kfold_train_x, kfold_train_y = x[train_index], y[train_index]
+                kfold_valid_x, kfold_valid_y = x[valid_index], y[valid_index]
 
                 self.labeled_preprocess(kfold_train_y, label_convert_type)
                 score = None
@@ -519,6 +514,7 @@ class Optimization(object):
 
                 scores[run][kfold] = score
                 logging.info("score:{}".format(score))
+            kfold += 1
 
         scores_mean = np.mean(scores)
         scores_valid = np.std(scores)
@@ -541,7 +537,7 @@ class Optimization(object):
         if not os.path.exists(single_prediction_savedir):
             os.makedirs(single_prediction_savedir)
 
-        submission_file = "submission_{}_{}_{}".format(
+        submission_file = "submission_{}_{}_{}.csv".format(
             feature_name, model_name, str(trial_counter))
 
         submission_file_path = os.path.join(
@@ -550,8 +546,8 @@ class Optimization(object):
         prediction = None
 
         if problem_type == "regression":
-            prediction = clf.predict(x)
-            prediction = self.labeled_after_process(y, label_convert_type)
+            prediction = clf.predict(test_x)
+            prediction = self.labeled_after_process(prediction, label_convert_type)
             output = pd.DataFrame(
                 {id_column_name: ids, prediction_column_name: prediction})
             output.to_csv(submission_file_path, index=False)
@@ -559,6 +555,7 @@ class Optimization(object):
         elif problem_type == "classification":
             prediction = clf.predict_proba(x)
 
-        logging.info("{} time optimizer finish all data prediction".format(str(self.trial_counter)))
+        logging.info("{} time optimizer finish all data prediction".format(
+            str(self.trial_counter)))
 
         return scores_mean, scores_valid

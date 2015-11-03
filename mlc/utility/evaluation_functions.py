@@ -30,6 +30,14 @@ def mean_squared_error_func(y_true, y_pred):
     """
     return mean_squared_error(y_true, y_pred)
 
+def reast_mean_squared_error_func(y_true, y_pred):
+    """
+    calculate mean squared error
+
+    :params y_true: true_data as np.array
+    :params y_pred: true_data as np.array
+    """
+    return mean_squared_error(y_true, y_pred) ** 0.5
 
 def ToWeight(y):
     w = np.zeros(y.shape, dtype=float)
@@ -246,6 +254,8 @@ def evaluate_function(y_true, y_pred, eval_func):
         return logloss(y_true, y_pred)
     elif eval_func == "mean_squared_error":
         return mean_squared_error_func(y_true, y_pred)
+    elif eval_func == "rmse":
+        return reast_mean_squared_error_func(y_true, y_pred)
     elif eval_func == "gini":
         return gini_normalized(y_true, y_pred)
     elif eval_func == "rmsle":

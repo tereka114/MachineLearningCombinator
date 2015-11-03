@@ -114,8 +114,8 @@ class NeuralNetwork(object):
             self.loss_function_type = "mean_squared_loss"
             train_y_copy = train_y.astype(
                 np.float32).copy().reshape(len(train_y), 1)
-
             target_var = T.matrix('y')
+
         elif self.problem_type == "classification":
             n_classes = len(set(train_y))
             self.n_classes = n_classes
@@ -221,7 +221,7 @@ class NeuralNetwork(object):
             return y.reshape(len(y))
         elif self.problem_type == "classification":
             y = self.prediction_fc(x.astype(np.float32))
-            return np.argmax(y,axis=1)
+            return np.argmax(y, axis=1)
 
     def predict_proba(self, x):
         y = self.prediction_fc(x)

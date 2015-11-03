@@ -166,6 +166,7 @@ parameter_dictionary['LGCLF'] = parameter_logisticclassifier_classifier
 parameter_dictionary['SVR'] = parameter_svr_regression
 parameter_dictionary['RFREG'] = parameter_randomforest_regression
 parameter_dictionary['XGBREGLINEAR'] = parameter_xgboost_linear_regression
+parameter_dictionary['XGBREGTREE'] = parameter_xgboost_tree_regression
 parameter_dictionary['XGBREGLOGISTIC'] = parameter_xgboost_logistic_regression
 parameter_dictionary['RIDGE'] = parameter_skl_ridge
 parameter_dictionary['LASSO'] = parameter_skl_lasso
