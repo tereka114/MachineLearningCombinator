@@ -336,7 +336,7 @@ class Optimization(object):
 
     def optimize(self, x=None, y=None, test_x=None,parameter=None, max_evals=10, runs=1, kfolds=5, 
         feature_name="feature_name", evaluate_function_name="rmsle", problem_type="regression", isWriteCsv=False, 
-        isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False):
+        isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False,label_convert_type="normal"):
         self.cross_validation_optimize(
             x, y, feature_name, runs, kfolds, problem_type, isOverWrite)
 
@@ -352,7 +352,7 @@ class Optimization(object):
 
         self.result_files = "result/result_{}_{}.csv".format(
             feature_name, model)
-        self.log_file_path = "log/log_{:5f}.log".format(time.time())
+        self.log_file_path = "log/log_{:0f}.log".format(time.time())
         print self.log_file_path
 
         logging.basicConfig(level=logging.DEBUG,
@@ -377,13 +377,13 @@ class Optimization(object):
 
         # execute hyperopt function for optimization parameters
         function = lambda parameter: self.hyperopt_optimization(
-            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
+            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, id_column_name=id_column_name, ids=ids, prediction_column_name=prediction_column_name, isCVSave=False, saveCVName="CV",label_convert_type=label_convert_type)
         best_parameter = fmin(
             function, parameter, algo=tpe.suggest, max_evals=max_evals, trials=trials)
 
         return best_parameter
 
-    def hyperopt_optimization(self, x=None, y=None, test_x=None,parameter=None, runs=1, kfolds=5, feature_name="feature_name", evaluate_function_name="evaluation", problem_type="regression", isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV"):
+    def hyperopt_optimization(self, x=None, y=None, test_x=None,parameter=None, runs=1, kfolds=5, feature_name="feature_name", evaluate_function_name="evaluation", problem_type="regression", isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV",label_convert_type="normal"):
         # create csv log data
         parameter_log_data = [self.trial_counter]
         parameter_log_data.extend([parameter[parameter_column]
@@ -393,7 +393,7 @@ class Optimization(object):
             str(self.trial_counter)))
 
         scores_mean, scores_valid = self.hyperopt_wrapper_function(
-            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, self.trial_counter, id_column_name="ids", ids=None, prediction_column_name="prediction", isCVSave=False, saveCVName="CV")
+            x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, self.trial_counter, id_column_name=id_column_name, ids=ids, prediction_column_name=prediction_column_name, isCVSave=False, saveCVName="CV",label_convert_type=label_convert_type)
 
         parameter_log_data.append(scores_mean)
         parameter_log_data.append(scores_valid)
@@ -495,7 +495,7 @@ class Optimization(object):
                 kfold_train_x, kfold_train_y = x[train_index], y[train_index]
                 kfold_valid_x, kfold_valid_y = x[valid_index], y[valid_index]
 
-                self.labeled_preprocess(kfold_train_y, label_convert_type)
+                kfold_train_y = self.labeled_preprocess(kfold_train_y, label_convert_type)
                 score = None
 
                 if not isBagging:
@@ -503,7 +503,7 @@ class Optimization(object):
                     clf.fit(kfold_train_x, kfold_train_y)
                     # evaluation
                     score = self.model_evaluation(
-                        clf, kfold_valid_x, kfold_valid_y, evaluate_function_name)
+                        clf, kfold_valid_x, kfold_valid_y, evaluate_function_name,label_convert_type)
                     if isCVSave:
                         pass
                 elif isBagging:
@@ -513,8 +513,9 @@ class Optimization(object):
                     pass
 
                 scores[run][kfold] = score
+                print "score:{}".format(score)
                 logging.info("score:{}".format(score))
-            kfold += 1
+                kfold += 1
 
         scores_mean = np.mean(scores)
         scores_valid = np.std(scores)

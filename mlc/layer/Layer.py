@@ -1,7 +1,6 @@
 # coding:utf-8
 from ..utility.Util import model_select, genIndexKFold, genIndexStratifiedKFold
 import numpy as np
-from ..parameter_tunes.optimize import optimize_linear_weight
 from ..utility.config import parameter_dictionary
 from hyperopt import hp, fmin, tpe
 from sklearn.svm import SVR

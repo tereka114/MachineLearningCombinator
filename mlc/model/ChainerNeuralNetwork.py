@@ -9,7 +9,6 @@ from ..utility.evaluation_functions import evaluate_function
 
 
 class NeuralNetwork(object):
-
     def __init__(self):
         pass
 

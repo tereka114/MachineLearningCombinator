@@ -46,17 +46,21 @@ def model_select(parameter):
 	elif model_name == 'XGBREGLINEAR':
 		params = {}
 		params['objective'] = parameter['objective']
-		params['booster'] = parameter['booster']
+		params['booster'] = 'gblinear'
 		params['eta'] = parameter['eta']
 		#params['min_child_weight'] = int(parameter['min_child_weight'])
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
 		params['colsample_bytree'] = parameter['colsample_bytree']
 		params['min_child_weight'] = int(parameter['min_child_weight'])
-		params['alpha'] = parameter['alpha']
-		params['lambda'] = parameter['lambda']
-		params['gamma'] = parameter['gamma']
-		params['seed'] = parameter['seed']
+		if "alpha" in parameter:
+			params['alpha'] = parameter['alpha']
+		if 'lambda' in parameter:
+			params['lambda'] = parameter['lambda']
+		if 'gamma' in parameter:
+			params['gamma'] = parameter['gamma']
+		if 'seed' in parameter:
+			params['seed'] = parameter['seed']
 		params['silent'] = 1
 		return XGBoostRegressor(int(parameter['num_round']),**params)
 	elif model_name == "XGBREGTREE":

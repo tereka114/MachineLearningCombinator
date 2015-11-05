@@ -85,8 +85,8 @@ class XGBoostRegressor(XGBoostWrapper):
             #evallist  = [(dtrain,'train')]
 
             watchlist = [(dtrain,'train'),(dvalid,'val')]
-            #self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100,feval=xgb_custom.rmspe_evaluation)
-            self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100,feval=xgb_custom.rmspe_evaluation)
+            #self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100)
         else:
             dtrain = xgb.DMatrix(X, label=y)
             watchlist = [(dtrain,'train')]
