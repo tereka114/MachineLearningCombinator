@@ -188,8 +188,6 @@ class NeuralNetwork(object):
             start_time = time.time()
             for batch in self.iterate_minibatches(split_train_x, split_train_y, self.batch_size, shuffle=True):
                 inputs, targets = batch
-                # print self.prediction_fc(inputs)
-                # print inputs,targets
                 train_err += train_fn(inputs, targets)
                 train_batches += 1
 
@@ -205,6 +203,7 @@ class NeuralNetwork(object):
                         val_acc += acc
                     else:
                         err = val_fn(inputs, targets)
+                        print self.predict(inputs)
                     val_err += err
                     val_batches += 1
                 #print("  valid loss:\t\t{:.6f}".format(val_err / val_batches))

@@ -1,0 +1,6 @@
+import pandas as pd
+
+rand = np.random.RandomState(1)
+df = pd.DataFrame({'A': ['foo', 'bar'] * 3,
+                   'B': rand.randn(6),
+                   'C': rand.randint(0, 20, 6)})
