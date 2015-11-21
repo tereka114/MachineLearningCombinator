@@ -7,7 +7,6 @@ import numpy as np
 
 
 class ModelTest(unittest.TestCase):
-
     def make_data_set(self):
         digits = load_diabetes()
         x = digits.data
@@ -23,17 +22,17 @@ class ModelTest(unittest.TestCase):
 
     def test_lasagne_regression(self):
         x, y = self.make_data_set()
-        print len(x), len(y)
+        print len(x), y
         neural_network = mlc.model.LasagneNeuralNetwork.NeuralNetwork(
-            problem_type="regression", batch_size=10, epochs=50, layer_number=[100, 100, 100], dropout_layer=[0.0, 0.0, 0.0])
+            problem_type="regression", batch_size=100, epochs=1000, layer_number=[100, 100, 100], dropout_layer=[0.0, 0.0, 0.0])
         neural_network.fit(x, np.log1p(y), valid=True,
                            evaluate_function="mean_squared_loss")
-        print neural_network.predict(x)
+        print np.expm1(neural_network.predict(x))
 
     def test_lasagne_classification(self):
         x, y = self.make_classification_data_set()
         neural_network = mlc.model.LasagneNeuralNetwork.NeuralNetwork(
-            problem_type="classification", batch_size=10, epochs=50, layer_number=[100, 100, 100], dropout_layer=[0.0, 0.0, 0.0])
+            problem_type="classification", batch_size=10, epochs=40, layer_number=[100, 100, 100], dropout_layer=[0.0, 0.0, 0.0])
         neural_network.fit(
             x, y, valid=True, evaluate_function="mean_squared_loss")
         print neural_network.predict_proba(x)

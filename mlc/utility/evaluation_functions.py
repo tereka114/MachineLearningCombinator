@@ -9,7 +9,7 @@ def weighted_kappa():
     pass
 
 
-def auc(y_true, y_pred):
+def calc_auc(y_true, y_pred):
     return roc_auc_score(y_true, y_pred)
 
 
@@ -263,6 +263,6 @@ def evaluate_function(y_true, y_pred, eval_func):
     elif eval_func == "area_auc":
         return roc_auc_truncated(y_true, y_pred)
     elif eval_func == "auc":
-        return auc(y_true, y_pred)
+        return calc_auc(y_true, y_pred)
     elif eval_func == "rmspe":
         return rmspe(y_true, y_pred)

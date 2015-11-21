@@ -12,9 +12,7 @@ class NeuralNetwork(object):
     def __init__(self):
         pass
 
-
 class ChainerNeuralNet(object):
-
     def __init__(self, batch_size=100, cuda=False, varbose=True, epoch=100, problem_type='classifier', model=None, layer_param=[]):
         self.batch_size = batch_size
         self.cuda = cuda
@@ -144,9 +142,7 @@ class ChainerNeuralNet(object):
         y = Function.softmax(y)
         return y.data
 
-
 class Chainer3LayerNeuralNetwork(ChainerNeuralNet):
-
     def __init__(self, batch_size=100, cuda=False, varbose=True, epoch=100, problem_type='classifier', layer1=784, layer2=784):
         super(Chainer3LayerNeuralNetwork, self).__init__(batch_size=batch_size, cuda=cuda,
                                                          varbose=varbose, epoch=epoch, problem_type=problem_type, layer_param=None)
@@ -179,7 +175,6 @@ class Chainer3LayerNeuralNetwork(ChainerNeuralNet):
 
 
 class ChainerConvolutionalNeuralNetwork(ChainerNeuralNet):
-
     def __init__(self):
         pass
 

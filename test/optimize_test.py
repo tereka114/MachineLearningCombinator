@@ -33,9 +33,6 @@ class OptimizeTest(unittest.TestCase):
 
         optimizer.optimize(x, y, x,parameter, 250, 1, 5, "test_feature", "rmse", "regression", isWriteCsv=False, isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False)
 
-    def test_lasagne_classification(self):
-        x, y = self.make_classification_data_set()
-
 def suite():
     suite = unittest.TestSuite()
     suite.addTests(unittest.makeSuite(OptimizeTest))

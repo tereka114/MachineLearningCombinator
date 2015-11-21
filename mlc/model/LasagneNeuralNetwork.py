@@ -12,19 +12,27 @@ import time
 def root_mean_squared_loss_function(a, b):
     return (T.log(1.0 + a) - T.log(1.0 + b)) ** 2
 
-
 def loss_function_based_theano(input, target):
     pass
 
 
 class NeuralNetwork(object):
-
-    def __init__(self, problem_type="regression", batch_size=128, epochs=400, layer_number=[], dropout_layer=[]):
+    def __init__(self, problem_type="regression", batch_size=128, epochs=400, layer_number=[], dropout_layer=[],update_function_type="adam"):
+        """
+        :param problem_type: regression or classification
+        :param batch_size: 
+        :epochs: training time
+        ::
+        :layer_number:
+        :dropout_layer:
+        """
         self.problem_type = problem_type
         self.batch_size = batch_size
         self.epochs = epochs
         self.layer_number = layer_number
         self.dropout_number = dropout_layer
+        self.update_function_type = update_function_type
+
         assert len(self.layer_number) == len(
             self.dropout_number), "you should correct number between hidden layers and dropout numbers"
 
@@ -127,7 +135,7 @@ class NeuralNetwork(object):
         if valid is True:
             print ("start split train and valid")
             split_train_x, valid_x, split_train_y, valid_y = train_test_split(
-                train_x_copy, train_y_copy, test_size=0.01)
+                train_x_copy, train_y_copy, test_size=0.1)
         else:
             split_train_x, split_train_y = train_x_copy, train_y_copy
 
@@ -151,9 +159,8 @@ class NeuralNetwork(object):
         params = lasagne.layers.get_all_params(
             self.neural_network, trainable=True)
 
-        update_function_type = "nesterov_momentum"
         updates = self.select_update_function(
-            loss, params, update_function_type)
+            loss, params, self.update_function_type)
 
         test_prediction = lasagne.layers.get_output(
             self.neural_network, deterministic=True)
@@ -192,6 +199,8 @@ class NeuralNetwork(object):
                 train_batches += 1
 
             # And a full pass over the validation data:
+            valid_score = None
+
             if valid:
                 val_err = 0
                 val_acc = 0
@@ -202,17 +211,22 @@ class NeuralNetwork(object):
                         err, acc = val_fn(inputs, targets)
                         val_acc += acc
                     else:
-                        err = val_fn(inputs, targets)
-                        print self.predict(inputs)
+                        err = val_fn(inputs, targets)[0][0]
+                        #print self.predict(inputs)[0]
                     val_err += err
                     val_batches += 1
+                valid_score = val_err / val_batches
                 #print("  valid loss:\t\t{:.6f}".format(val_err / val_batches))
 
             # Then we print the results for this epoch:
             print("Epoch {} of {} took {:.3f}s".format(
                 epoch + 1, num_epochs, time.time() - start_time))
             print("  training loss:\t\t{:.6f}".format(
-                train_err / train_batches))
+                train_err / train_batches / self.batch_size))
+
+            if valid:
+                print("  validation loss:\t\t{:.6f}".format(
+                    valid_score))
 
     def predict(self, x):
         if self.problem_type == "regression":
