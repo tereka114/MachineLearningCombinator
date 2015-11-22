@@ -24,7 +24,7 @@ def model_select(parameter):
 			max_depth=int(parameter['max_depth']),
 			min_samples_leaf=int(parameter['min_samples_leaf']),
 			min_samples_split=int(parameter['min_samples_split']),
-			random_state=int(parameter['random_state']))
+			random_state=int(parameter['seed']))
 	elif model_name == "RFREG":
 		return RandomForestRegressor(
 			n_estimators=int(parameter['n_estimators']),
@@ -32,7 +32,7 @@ def model_select(parameter):
 			max_depth=int(parameter['max_depth']),
 			min_samples_leaf=int(parameter["min_samples_leaf"]),
 			min_samples_split=int(parameter['min_samples_split']),
-			random_state=int(parameter['random_state'])
+			random_state=int(parameter['seed'])
 			)
 	elif model_name == "RFCLF":
 		return RandomForestClassifier(
@@ -41,26 +41,17 @@ def model_select(parameter):
 			max_depth=int(parameter['max_depth']),
 			min_samples_leaf=int(parameter["min_samples_leaf"]),
 			min_samples_split=int(parameter['min_samples_split']),
-			random_state=int(parameter['random_state'])
+			random_state=int(parameter['seed'])
 			)
 	elif model_name == 'XGBREGLINEAR':
 		params = {}
 		params['objective'] = parameter['objective']
-		#params['booster'] = 'gblinear'
 		params['eta'] = parameter['eta']
-		#params['min_child_weight'] = int(parameter['min_child_weight'])
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
 		params['colsample_bytree'] = parameter['colsample_bytree']
 		params['min_child_weight'] = int(parameter['min_child_weight'])
-		# if "alpha" in parameter:
-		# 	params['alpha'] = parameter['alpha']
-		# if 'lambda' in parameter:
-		# 	params['lambda'] = parameter['lambda']
-		# if 'gamma' in parameter:
-		# 	params['gamma'] = parameter['gamma']
-		# if 'seed' in parameter:
-		# 	params['seed'] = parameter['seed']
+		params['seed'] = parameter['seed']
 		params['silent'] = 1
 		return XGBoostRegressor(int(parameter['num_round']),**params)
 	elif model_name == "XGBREGTREE":
@@ -68,7 +59,6 @@ def model_select(parameter):
 		params['objective'] = parameter['objective']
 		params['booster'] = parameter['booster']
 		params['eta'] = parameter['eta']
-		#params['min_child_weight'] = int(parameter['min_child_weight'])
 		params['max_depth'] = int(parameter['max_depth'])
 		params['subsample'] = parameter['subsample']
 		params['colsample_bytree'] = parameter['colsample_bytree']
@@ -96,13 +86,13 @@ def model_select(parameter):
 			max_depth=int(parameter['max_depth']),
 			min_samples_leaf=int(parameter['min_samples_leaf']),
 			min_samples_split=int(parameter['min_samples_split']),
-			random_state=int(parameter['random_state']))
+			random_state=int(parameter['seed']))
 	elif model_name == 'DECISIONTREEREG':
 		return DecisionTreeRegressor(n_estimators=int(parameter['n_estimators']),
 			max_depth=int(parameter['max_depth']),
 			min_samples_leaf=int(parameter['min_samples_leaf']),
 			min_samples_split=int(parameter['min_samples_split']),
-			random_state=int(parameter['random_state']))
+			random_state=int(parameter['seed']))
 	elif model_name == 'ChainerNeuralNetworkRegression':
 		return Chainer3LayerNeuralNetwork(problem_type='regression',layer1=int(parameter['layer1']),layer2=int(parameter['layer2']))
 	elif model_name == 'GBR':
