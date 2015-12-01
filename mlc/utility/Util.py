@@ -1,13 +1,13 @@
 from sklearn import cross_validation
 from sklearn.linear_model import LogisticRegression
-from sklearn.svm import SVR
+from sklearn.svm import SVR,SVC
 from sklearn import cross_validation
 from sklearn.ensemble import RandomForestClassifier,RandomForestRegressor,ExtraTreesRegressor,GradientBoostingRegressor,ExtraTreesClassifier
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.linear_model import Ridge, Lasso, LassoLars, ElasticNet
 import numpy as np
 from ..model.XGBoost import XGBoostRegressor,XGBoostClassifier
-from ..model.ChainerNeuralNetwork import Chainer3LayerNeuralNetwork
+from ..model.ChainerNeuralNetwork import ChainerNeuralNetworkModel,ChainerNeuralNetwork
 from ..model.LasagneNeuralNetwork import NeuralNetwork
 from sklearn.cross_validation import KFold,StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
@@ -15,7 +15,7 @@ import os
 
 def model_select(parameter):
 	model_name = parameter['model']
-	if model_name == "logistic_classifier":
+	if model_name == "LOGISTIC":
 		return LogisticRegression(C=parameter['C'])
 	elif model_name == "SVR":
 		return SVR(C=parameter['C'],gamma=parameter['gamma'],kernel=parameter['kernel'])
@@ -43,6 +43,10 @@ def model_select(parameter):
 			min_samples_split=int(parameter['min_samples_split']),
 			random_state=int(parameter['seed'])
 			)
+	elif model_name == "SVC":
+		return SVC(C=parameter["C"],
+			kernel=parameter["kernel"],
+			degree=int(parameter["degree"]))
 	elif model_name == 'XGBREGLINEAR':
 		params = {}
 		params['objective'] = parameter['objective']
@@ -94,7 +98,8 @@ def model_select(parameter):
 			min_samples_split=int(parameter['min_samples_split']),
 			random_state=int(parameter['seed']))
 	elif model_name == 'ChainerNeuralNetworkRegression':
-		return Chainer3LayerNeuralNetwork(problem_type='regression',layer1=int(parameter['layer1']),layer2=int(parameter['layer2']))
+		model = ChainerNeuralNetworkModel(problem_type='regression',layer1=int(parameter['layer1']),layer2=int(parameter['layer2']),n_in=int(parameter['n_in']),n_out=int(parameter['n_out']),dropout1=int(parameter['dropout1']),dropout2=int(parameter['dropout2']))
+		return ChainerNeuralNetwork(problem_type='regression',batch_size=100, cuda=parameter['cuda'], epoch=parameter['epoch'],model=model,seed=2015,evaluate_function_name=int(parameter['evaluate_function']),convert=parameter['convert'])
 	elif model_name == 'GBR':
 		return GradientBoostingRegressor(n_estimators=100,
 			max_depth=10,
