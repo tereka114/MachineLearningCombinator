@@ -14,35 +14,38 @@ class NeuralNetwork(object):
         pass
 
 class ChainerNeuralNetworkModel(chainer.Chain):
-    def __init__(self, problem_type='regression',n_in=0,n_out=1,layer1=10,layer2=20,dropout1=0.2,dropout2=0.3):
+    def __init__(self, problem_type='regression',n_in=0,n_out=1,layer1=10,layer2=20,layer3=10,dropout1=0.2,dropout2=0.3,dropout3=0.1):
         self.problem_type = problem_type
         self.dropout1 = dropout1
         self.dropout2 = dropout2
-
+        self.dropout3 = dropout3
         super(ChainerNeuralNetworkModel,self).__init__(
             l1=L.Linear(n_in, layer1),
             l2=L.Linear(layer1, layer2),
-            l3=L.Linear(layer2, n_out),
+            l3=L.Linear(layer2, layer3),
+            l4=L.Linear(layer3, n_out)
             )
 
     def __call__(self, x, t):
-        h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
-        h3 = self.l3(h2)
+        h1 = F.dropout(F.relu(self.l1(x)),ratio=self.dropout1)
+        h2 = F.dropout(F.relu(self.l2(h1)),ratio=self.dropout2)
+        h3 = F.dropout(F.relu(self.l3(h2)),ratio=self.dropout3)        
+        h4 = self.l4(h3)
 
         if self.problem_type == 'classifier':
-            self.loss = F.softmax_cross_entropy(h3, t)
+            self.loss = F.softmax_cross_entropy(h4, t)
             return self.loss
         elif self.problem_type == 'regression':
-            self.loss = F.mean_squared_error(h3, t)
+            self.loss = F.mean_squared_error(h4, t)
             return self.loss
 
     def predict(self,x):
-        h1 = F.dropout(F.relu(self.l1(x)))
-        h2 = F.dropout(F.relu(self.l2(h1)))
-        h3 = self.l3(h2)
+        h1 = F.dropout(F.relu(self.l1(x)),ratio=self.dropout1,train=False)
+        h2 = F.dropout(F.relu(self.l2(h1)),ratio=self.dropout2,train=False)
+        h3 = F.dropout(F.relu(self.l3(h2)),ratio=self.dropout3,train=False)
+        h4 = self.l4(h3)
 
-        return h3
+        return h4
 
 class ChainerNeuralNetwork(object):
     def __init__(self, batch_size=100, cuda=False, epoch=100, problem_type='classifier',model=None,seed=2015,evaluate_function_name=None,convert=None):
@@ -111,7 +114,7 @@ class ChainerNeuralNetwork(object):
         x = chainer.Variable(self.xp.asarray(data,dtype=np.float32),volatile="on")
         y = self.model.predict(x)
         if self.problem_type == 'regression':
-            return self.reconvert(y.data.reshape((len(data))))
+            return self.reconvert(y.data.get().reshape((len(data))))
         else:
             return np.argmax()
 

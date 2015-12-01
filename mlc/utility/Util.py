@@ -98,8 +98,8 @@ def model_select(parameter):
 			min_samples_split=int(parameter['min_samples_split']),
 			random_state=int(parameter['seed']))
 	elif model_name == 'ChainerNeuralNetworkRegression':
-		model = ChainerNeuralNetworkModel(problem_type='regression',layer1=int(parameter['layer1']),layer2=int(parameter['layer2']),n_in=int(parameter['n_in']),n_out=int(parameter['n_out']),dropout1=int(parameter['dropout1']),dropout2=int(parameter['dropout2']))
-		return ChainerNeuralNetwork(problem_type='regression',batch_size=100, cuda=parameter['cuda'], epoch=parameter['epoch'],model=model,seed=2015,evaluate_function_name=int(parameter['evaluate_function']),convert=parameter['convert'])
+		model = ChainerNeuralNetworkModel(problem_type='regression',layer1=int(parameter['layer1']),layer2=int(parameter['layer2']),layer3=int(parameter['layer3']),n_in=int(parameter['n_in']),n_out=int(parameter['n_out']),dropout1=int(parameter['dropout1']),dropout2=int(parameter['dropout2']),dropout3=int(parameter['dropout3']))
+		return ChainerNeuralNetwork(problem_type='regression',batch_size=100, cuda=parameter['cuda'], epoch=parameter['epoch'],model=model,seed=2015,evaluate_function_name=parameter['evaluate_function'],convert=parameter['convert'])
 	elif model_name == 'GBR':
 		return GradientBoostingRegressor(n_estimators=100,
 			max_depth=10,
