@@ -212,11 +212,9 @@ class NeuralNetwork(object):
                         val_acc += acc
                     else:
                         err = val_fn(inputs, targets)[0][0]
-                        #print self.predict(inputs)[0]
                     val_err += err
                     val_batches += 1
                 valid_score = val_err / val_batches
-                #print("  valid loss:\t\t{:.6f}".format(val_err / val_batches))
 
             # Then we print the results for this epoch:
             print("Epoch {} of {} took {:.3f}s".format(
