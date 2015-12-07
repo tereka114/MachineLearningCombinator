@@ -122,10 +122,6 @@ parameter_xgboost_tree_regression = {
 	'max_depth': hp.quniform('max_depth',4,20,1),
 	'subsample': hp.quniform('subsample',0.5,1,0.1),
 	"colsample_bytree": hp.quniform('colsample_bytree',0.5,1,0.05),
-	"alpha": hp.quniform("alpha",0,0.5,0.005),
-	"lambda": hp.quniform('lambda',0,5,0.05),
-	"lambda_bias":hp.quniform('lambda_bias',0,3,0.1),
-	'gamma' : hp.quniform('gamma', 0.5, 1, 0.05),
 	'seed' : modelRandomSeed
 }
 
@@ -134,9 +130,9 @@ parameter_xgboost_logistic_regression = {
 	'objective': "binary:logistic",
 	'eta' : hp.choice('eta', [0.025, 0.1, 0.3, 0.5, 1.0]),
 	'min_child_weight':hp.quniform('min_child_weight',1,20,1),
-	'max_depth': hp.quniform('max_depth',4,20,1),
-	'subsample': hp.quniform('subsample',0.5,01,0.05),
-	"colsample_bytree": hp.quniform('colsample_bytree',0.5,1,0.05),
+	'max_depth': hp.choice('max_depth',[4,6,8,10]),
+	'subsample': hp.choice('subsample',[0.5,0.75,1.0]),
+	"colsample_bytree": hp.choice('colsample_bytree',[0.5,0.6,0.8,1.0]),
 	'num_round' : hp.quniform('num_round', xgb_min_num_round, xgb_max_num_round, xgb_num_round_step),
 	'seed' : modelRandomSeed
 }
