@@ -189,6 +189,7 @@ class StackingRegressionLayer(object):
 					clf = model_select(parameter)
 					clf.fit(train_x_fold[index_shuffle],np.log1p(train_y_fold[index_shuffle]))
 					prediction[valid_index] = np.expm1(clf.predict(valid_x_fold))
+					print evaluate_function(valid_y_fold, prediction[valid_index],"rmspe")
 
 				# add evaluation function
 				print evaluate_function(train_y,prediction,"rmspe")

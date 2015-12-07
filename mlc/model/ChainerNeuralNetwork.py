@@ -48,7 +48,7 @@ class ChainerNeuralNetworkModel(chainer.Chain):
         return h4
 
 class ChainerNeuralNetwork(object):
-    def __init__(self, batch_size=100, cuda=False, epoch=100, problem_type='classifier',model=None,seed=2015,evaluate_function_name=None,convert=None):
+    def __init__(self, batch_size=100, cuda=False, epoch=100, problem_type='classifier',model=None,seed=2015,evaluate_function_name=None,convert=None,split=0.012):
         self.batchsize = batch_size
         self.cuda = cuda
         self.epochs = epoch
@@ -56,7 +56,8 @@ class ChainerNeuralNetwork(object):
         self.model = model
         self.seed = seed
         self.evaluate_function_name = evaluate_function_name
-        self.convert_type = None
+        self.convert = None
+        self.split = split
 
     def convert(self,data):
         if self.convert == "log":
@@ -70,7 +71,6 @@ class ChainerNeuralNetwork(object):
         return data
 
     def fit(self,x_train,y_train):
-        N = len(x_train)
         batchsize = self.batchsize
 
         np.random.seed(self.seed)
@@ -83,38 +83,48 @@ class ChainerNeuralNetwork(object):
             xp = np
         self.xp = xp
 
-        data = np.array(x_train,dtype=np.float32)
-
-        if self.problem_type == 'classifier':
-            target = y_train
-        elif self.problem_type == 'regression':
-            target = np.array(self.convert(y_train),dtype=np.float32).reshape((len(data),1))
+        if self.split != 0.0:
+            x_train_data, x_valid_data, y_train_data, y_valid_data = train_test_split(x_train, y_train, test_size=self.split, random_state=self.seed)
+            print "train size:{} test_size:{}".format(len(x_train_data), len(y_valid_data))
+            data = np.array(x_train_data,dtype=np.float32)
+            valid_data = np.array(x_valid_data,dtype=np.float32)
+            target = np.array(y_train_data,dtype=np.float32).reshape((len(data),1))
+            valid_target = np.array(y_valid_data,dtype=np.float32).reshape((len(valid_data),1))
+        else:
+            data = np.array(x_train,dtype=np.float32)
+            target = np.array(self.convert(y_train_data),dtype=np.float32).reshape((len(data),1))
 
         optimizer = optimizers.Adam()
         optimizer.setup(self.model)
+        N = len(data)
 
         for epoch in xrange(self.epochs):
             print "epoch:",epoch
             perm = np.random.permutation(N)
             sum_loss = 0.0
+            sum_original_loss = 0.0
+
+            cnt = 0
             for i in xrange(0,N,batchsize):
                 x = chainer.Variable(xp.asarray(data[perm[i:i + batchsize]]),volatile="off")
                 t = chainer.Variable(xp.asarray(target[perm[i:i + batchsize]],dtype=np.float32),volatile="off")
 
                 optimizer.update(self.model, x, t)
+                sum_original_loss += float(self.model.loss.data) * len(t.data)
+                cnt += 1
 
-                if evaluate_function != None:
-                    prediction = self.predict(x.data)
-                    loss = evaluate_function(target[perm[i:i + batchsize]],prediction,self.evaluate_function_name)
-
-                    sum_loss += loss * len(t)
-            print "train_loss:{}".format(sum_loss / N)
+            if evaluate_function != None:
+                prediction = self.predict(valid_data)
+                loss = evaluate_function(np.expm1(valid_target),np.expm1(prediction),self.evaluate_function_name)
+                sum_loss = loss
+            print "original train loss:{}".format(sum_original_loss / N)
+            print "train_loss:{}".format(sum_loss)
 
     def predict(self,data):
         x = chainer.Variable(self.xp.asarray(data,dtype=np.float32),volatile="on")
         y = self.model.predict(x)
         if self.problem_type == 'regression':
-            return self.reconvert(y.data.get().reshape((len(data))))
+            return y.data.get().reshape((len(data)))
         else:
             return np.argmax()
 
