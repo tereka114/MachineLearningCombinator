@@ -306,7 +306,6 @@ def optimize_model_parameter_validation(x, y, model_name=None, loss_function="ac
 
 
 class Optimization(object):
-
     def __init__(self):
         pass
 
@@ -391,6 +390,8 @@ class Optimization(object):
 
         logging.info("{} time optimization start".format(
             str(self.trial_counter)))
+
+        print parameter
 
         scores_mean, scores_valid = self.hyperopt_wrapper_function(
             x, y, test_x,parameter, runs, kfolds, feature_name, evaluate_function_name, problem_type, self.trial_counter, id_column_name=id_column_name, ids=ids, prediction_column_name=prediction_column_name, isCVSave=False, saveCVName="CV",label_convert_type=label_convert_type)
