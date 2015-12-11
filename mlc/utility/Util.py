@@ -81,6 +81,18 @@ def model_select(parameter):
 		params['eval_metric'] = "auc"
 		params['silent'] = 1
 		return XGBoostClassifier(int(parameter['num_round']),**params)
+	elif model_name == "XGBMULCLASSIFIER":
+		params = {}
+		params['objective'] = parameter['objective']
+		params['eta'] = parameter['eta']
+		params['min_child_weight'] = int(parameter['min_child_weight'])
+		params['max_depth'] = int(parameter['max_depth'])
+		params['subsample'] = parameter['subsample']
+		params['colsample_bytree'] = parameter['colsample_bytree']
+		params['eval_metric'] = "mlogloss"
+		params['silent'] = 1
+		params['num_class'] = parameter['num_class']
+		return XGBoostClassifier(int(parameter['num_round']),**params)
 	elif model_name == 'LASSO':
 		return Lasso(alpha=parameter['alpha'], normalize=True)
 	elif model_name == 'RIDGE':

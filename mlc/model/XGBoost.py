@@ -11,9 +11,9 @@ class XGBoostWrapper(object):
         self.num_boost_round = num_boost_round
         self.params = params
 
-    def predict_proba(self, X):
+    def predict_proba(self, X,ntree_limit=0):
         dtest = xgb.DMatrix(X)
-        return self.clf.predict(dtest)
+        return self.clf.predict(dtest,ntree_limit=ntree_limit)
     
     def get_params(self, deep=True):
         return self.params
@@ -73,7 +73,7 @@ class XGBoostRegressor(XGBoostWrapper):
     def __init__(self,num_boost_round=10, **params):
         super(XGBoostRegressor,self).__init__(num_boost_round,**params)
 
-    def fit(self, X, y,num_boost_round=None,early_stopping=True):
+    def fit(self, X, y,num_boost_round=None,early_stopping=False):
         transform_y = y
         num_boost_round = num_boost_round or self.num_boost_round
         #evallist  = [(dtrain,'train')]
@@ -85,13 +85,13 @@ class XGBoostRegressor(XGBoostWrapper):
             #evallist  = [(dtrain,'train')]
 
             watchlist = [(dtrain,'train'),(dvalid,'val')]
-            self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100,feval=xgb_custom.rmspe_evaluation)
-            #self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100)
+            #self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist,early_stopping_rounds=100,feval=xgb_custom.rmspe_evaluation)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round=num_boost_round,evals=watchlist)
         else:
             dtrain = xgb.DMatrix(X, label=y)
             watchlist = [(dtrain,'train')]
-            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist,feval=xgb_custom.rmspe_evaluation)
+            self.clf = xgb.train(self.params, dtrain, num_boost_round,watchlist)
 
-    def predict(self, X):
+    def predict(self, X,ntree_limit=0):
         dtest = xgb.DMatrix(X)
-        return self.clf.predict(dtest)
+        return self.clf.predict(dtest,ntree_limit=ntree_limit)

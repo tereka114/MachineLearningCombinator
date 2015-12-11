@@ -15,295 +15,7 @@ from ..utility.evaluation_functions import evaluate_function
 from ..utility.Util import model_select
 from ..utility.config import parameter_dictionary
 from ..utility.file_util import dictionary_in_list_convert_to_csv
-
-
-def optimize_model_function_validation(params, x_train, y_train, x_test, y_test, evaluate_function_name):
-    """
-    optimize parameter
-    train_test parameter turning
-
-    :param params:
-    :param x:
-    :param y:
-    ::
-    :param evaluate_function_name:
-    """
-    print params
-    cnt = 0
-
-    clf = model_select(params)
-    print len(y_train), len(y_test)
-
-    train_y_pred = None
-    y_pred = None
-    score = 0.0
-
-    # y_pred = clf.predict(x_test)
-    if evaluate_function_name == "accuracy":
-        clf.fit(x_train, y_train)
-        train_y_pred = clf.predict(x_train)
-        y_pred = clf.predict(x_test)
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        train_score = -train_score
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-        score = -score
-    elif evaluate_function_name == "logloss":
-        clf.fit(x_train, y_train)
-        train_y_pred = clf.predict(x_train)
-        y_pred = clf.predict_proba(x_test)
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-        score = -score
-        train_score = -train_score
-    elif evaluate_function_name == "mean_squared_error":
-        train_y_pred = clf.predict(x_train)
-        y_pred = clf.predict(x_test)
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-    elif evaluate_function_name == "gini":
-        y_pred = clf.predict(x_test)
-        train_y_pred = clf.predict(x_train)
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-        score = -score
-        train_score = -train_score
-    elif evaluate_function_name == "rmsle":
-        y_pred = np.expm1(clf.predict(x_test))
-        train_y_pred = clf.predict(x_train)
-
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-    elif evaluate_function_name == "auc":
-        if params['model'] == "XGBREGLOGISTIC":
-            y_pred = clf.predict_proba(x_test)
-        else:
-            y_pred = clf.predict_proba(x_test)[:, 1]
-
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-        score = -score
-        train_score = -train_score
-    elif evaluate_function_name == "rmspe":
-        clf.fit(x_train, np.log1p(y_train))
-        train_y_pred = np.expm1(clf.predict(x_train))
-        y_pred = np.expm1(clf.predict(x_test))
-
-        train_score = evaluate_function(
-            y_train, train_y_pred, evaluate_function_name)
-        score = evaluate_function(y_test, y_pred, evaluate_function_name)
-        score = score
-    cnt = cnt + 1
-    # print cnt,params['model'],score
-    print train_score, score
-    return score
-
-
-def optimize_model_function(params, x, y, validation_indexs, evaluate_function_name):
-    """
-    optimize parameter
-    k-fold classification
-
-    :param params:
-    :param x:
-    :param y:
-    :param validation_indexs:
-    :param evaluate_function_name:
-    """
-    print params
-    evals = np.zeros((len(validation_indexs)))
-    cnt = 0
-    for i, validation_index in enumerate(validation_indexs):
-        score = optimize_model_function_validation(params, x[validation_index[0]], y[validation_index[0]], x[
-                                                   validation_index[1]], y[validation_index[1]], evaluate_function_name)
-        cnt = cnt + 1
-        # print cnt,params['model'],score
-        print score
-        evals[i] = score
-
-    evaluate_score = np.mean(evals)
-    print "final result", evaluate_score
-    return evaluate_score
-
-
-def optimize_model_function_split(params, x_train, x_test, y_train, y_test, evaluate_function):
-    print params
-    evals = np.zeros((len(x_train)))
-    cnt = 0
-    for index in xrange(len(x_train)):
-        score = optimize_model_function_validation(params, x_train[index], y_train[
-                                                   index], x_test[index], y_test[index], evaluate_function)
-        cnt = cnt + 1
-        # print cnt,params['model'],score
-        print score
-        evals[index] = score
-
-    evaluate_score = np.mean(evals)
-    print "final result", evaluate_score
-    return evaluate_score
-
-
-def optimize_model_parameter_split(x, y, model_name=None, loss_function="accuracy", parameter=None, max_evals=100, n_folds=5, isWrite=True, times=1, problem_pattern="classification"):
-    """
-    hyperopt model turning
-    """
-    if model_name == None and parameter == None:
-        print "you must set parameter or model_name"
-        return None
-    elif parameter != None:
-        param = parameter
-    elif model_name != None:
-        param = parameter_dictionary[model_name]
-    else:
-        return None
-
-    x_trains = []
-    x_tests = []
-    y_trains = []
-    y_tests = []
-
-    for time in xrange(times):
-        x_train, x_test, y_train, y_test = cross_validation.train_test_split(
-            x, y, test_size=0.0125)
-        x_trains.append(x_train)
-        x_tests.append(x_test)
-        y_trains.append(y_train)
-        y_tests.append(y_test)
-
-    trials = Trials()
-    function = lambda param: optimize_model_function_split(
-        param, x_trains, x_tests, y_trains, y_tests, loss_function)
-    print param
-    print "========================================================================"
-    best_param = fmin(function, param,
-                      algo=tpe.suggest, max_evals=max_evals, trials=trials)
-    print "========================================================================"
-    print "write result to csv files"
-
-    # write the csv file
-    if isWrite:
-        datas = []
-        for trial_data in trials.trials:
-            print trial_data
-            trial_parameter_dictionary = {}
-            trial_parameter_dictionary['model'] = model_name
-            trial_parameter_dictionary['tid'] = trial_data['misc']['tid']
-            for key, value in trial_data['misc']['vals'].items():
-                print key, value[0]
-                trial_parameter_dictionary[key] = value[0]
-            trial_parameter_dictionary['loss'] = trial_data['result']['loss']
-            trial_parameter_dictionary[
-                'status'] = trial_data['result']['status']
-            datas.append(trial_parameter_dictionary)
-        filename = str(time.time()) + ".csv"
-        dictionary_in_list_convert_to_csv(datas, filename)
-
-    print trials.statuses()
-    return best_param
-
-
-def optimize_model_parameter_validation(x, y, model_name=None, loss_function="accuracy", parameter=None, max_evals=100, n_folds=5, isWrite=True, problem_pattern="classification"):
-    """
-    hyperopt model turning
-    """
-    if model_name == None and parameter == None:
-        print "you must set parameter or model_name"
-        return None
-    elif parameter != None:
-        param = parameter
-    elif model_name != None:
-        param = parameter_dictionary[model_name]
-    else:
-        return None
-
-    validation_indexs = []
-
-    if problem_pattern == "classification":
-        for train_index, test_index in cross_validation.StratifiedKFold(y, n_folds=n_folds):
-            validation_indexs.append((train_index, test_index))
-    else:
-        for train_index, test_index in cross_validation.KFold(len(y), n_folds=n_folds):
-            validation_indexs.append((train_index, test_index))
-
-    trials = Trials()
-    function = lambda param: optimize_model_function(
-        param, x, y, validation_indexs, loss_function)
-    print param
-    print "========================================================================"
-    best_param = fmin(function, param,
-                      algo=tpe.suggest, max_evals=max_evals, trials=trials)
-    print "========================================================================"
-    print "write result to csv files"
-
-    # write the csv file
-    if isWrite:
-        datas = []
-        for trial_data in trials.trials:
-            print trial_data
-            trial_parameter_dictionary = {}
-            trial_parameter_dictionary['model'] = model_name
-            trial_parameter_dictionary['tid'] = trial_data['misc']['tid']
-            for key, value in trial_data['misc']['vals'].items():
-                print key, value[0]
-                trial_parameter_dictionary[key] = value[0]
-            trial_parameter_dictionary['loss'] = trial_data['result']['loss']
-            trial_parameter_dictionary[
-                'status'] = trial_data['result']['status']
-            datas.append(trial_parameter_dictionary)
-        filename = str(time.time()) + ".csv"
-        dictionary_in_list_convert_to_csv(datas, filename)
-
-    print trials.statuses()
-    return best_param
-
-    def model_evaluation(clf, x, y, evaluate_function_name, labeled_type, label_convert_type="normal"):
-        if evaluate_function_name == "accuracy":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-            score = -score
-        elif evaluate_function_name == "logloss":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-            train_score = -score
-        elif evaluate_function_name == "mean_squared_error":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-        elif evaluate_function_name == "gini":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-            score = -score
-            train_score = -train_score
-        elif evaluate_function_name == "rmsle":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-        elif evaluate_function_name == "auc":
-            if params['model'] == "XGBREGLOGISTIC":
-                y_pred = clf.predict_proba(x_test)
-            else:
-                y_pred = clf.predict_proba(x_test)[:, 1]
-
-            train_score = evaluate_function(
-                y_train, train_y_pred, evaluate_function_name)
-            score = evaluate_function(y_test, y_pred, evaluate_function_name)
-            score = -score
-            train_score = -train_score
-        elif evaluate_function_name == "rmspe":
-            y_pred = clf.predict(x)
-            score = evaluate_function(
-                y, y_pred, evaluate_function_name)
-            score = score
-        return score
-
+from sklearn.grid_search import ParameterGrid
 
 class Optimization(object):
     def __init__(self):
@@ -407,6 +119,7 @@ class Optimization(object):
 
     def labeled_preprocess(self, y, convert_type="normal"):
         if convert_type == "log":
+            print "log"
             return np.log1p(y)
         return y
 
@@ -478,12 +191,6 @@ class Optimization(object):
         model_name = parameter["model"]
         scores = np.zeros((runs, kfolds))
 
-        # check
-        # if x == None or y == None:
-        #     logging.info("you should set the train vector and test vector")
-        #     return None
-
-        # calculate score
         for run in xrange(runs):
             data_path = "./CrossValidationIndexs/Runs{}.pkl".format(
                 run, feature_name)
@@ -505,13 +212,6 @@ class Optimization(object):
                     # evaluation
                     score = self.model_evaluation(
                         clf, kfold_valid_x, kfold_valid_y, evaluate_function_name,label_convert_type)
-                    if isCVSave:
-                        pass
-                elif isBagging:
-                    """
-                    Todo: you should implement bagging system
-                    """
-                    pass
 
                 scores[run][kfold] = score
                 print "score:{}".format(score)
@@ -561,3 +261,105 @@ class Optimization(object):
             str(self.trial_counter)))
 
         return scores_mean, scores_valid
+
+class OptimizeCrossValidation(object):
+    def __init__(self):
+        pass
+
+    def optimize(self,x,y,kfolds,base_parameter,parameter_grid_dict,times,evaluate_function_name,problem_type,output_files):
+        scores = []
+        kfold = cross_validation.KFold(
+            n=len(x), n_folds=kfolds, shuffle=True, random_state=71)
+
+        for params in ParameterGrid(parameter_grid_dict):
+
+            base_parameter['seed'] = 71
+            for key,value in params.items():
+                base_parameter[key] = value
+
+            total_train_evaluation = 0
+            total_test_evaluation = 0
+
+            count = 1
+            for time in xrange(times):
+                for index,(train_index,test_index) in enumerate(kfold):
+                    x_train,x_valid = x[train_index],x[test_index]
+                    y_train,y_valid = y[train_index],y[test_index]
+
+                    clf = model_select(base_parameter)
+                    clf.fit(x_train,y_train)
+
+                    train_prediction,valid_prediction = None,None
+
+                    if problem_type == "classification":
+                        train_prediction = clf.predict_proba(x_train)
+                        valid_prediction = clf.predict_proba(x_valid)
+                    else:
+                        train_prediction = clf.predict(x_train)
+                        valid_prediction = clf.predict(x_valid)
+
+                    train_score = evaluate_function(y_train, train_prediction,evaluate_function_name)
+                    test_score = evaluate_function(y_valid, valid_prediction,evaluate_function_name)
+
+                    total_train_evaluation += train_score
+                    total_test_evaluation += test_score
+                    train_score_avg = total_train_evaluation / (time + 1)
+                    test_score_avg = total_test_evaluation / (time + 1)
+
+                    score_dict = {"data index":index,
+                        "train score":train_score,
+                        "test score":test_score,
+                        "train score average":train_score_avg,
+                        "test score average":test_score_avg
+                    }
+
+                    for key,value in base_parameter.items():
+                        score_dict[key] = value
+                    scores.append(score_dict)
+
+                    count += 1
+
+                    base_parameter['seed'] = base_parameter['seed'] + 100
+        df = pd.DataFrame(scores)
+        df.to_csv(output_files)
+
+class OptimizeEpochsValidation(object):
+    def __init__(self):
+        pass
+
+    def optimize_epochs(self,x,y,base_parameter,kfolds,epochs,evaluate_function_name,problem_type="classification",stopping_epochs=[],output_files=""):
+        kfold = cross_validation.KFold(
+            n=len(x), n_folds=kfolds, shuffle=True, random_state=71)
+
+        scores_list = []
+
+        for index,(train_index,test_index) in enumerate(kfold):
+            x_train,x_valid = x[train_index],x[test_index]
+            y_train,y_valid = y[train_index],y[test_index]
+
+            #if you select xgboost model
+            clf = model_select(base_parameter)
+            if base_parameter['model'].startswith("XG"):
+                clf.fit(x_train,y_train)
+                for parameter_epoch in stopping_epochs:
+                    train_prediction,valid_prediction = None,None
+                    if problem_type == "classification":
+                        train_prediction = clf.predict_proba(x_train,parameter_epoch)
+                        valid_prediction = clf.predict_proba(x_valid,parameter_epoch)
+                    else:
+                        train_prediction = clf.predict(x_train,parameter_epoch)
+                        valid_prediction = clf.predict(x_valid,parameter_epoch)                        
+                    train_score = evaluate_function(y_train, train_prediction,evaluate_function_name)
+                    test_score = evaluate_function(y_valid, valid_prediction,evaluate_function_name)
+
+                    score_dict = {"data_index":index,"train_score":train_score,"test_score":test_score,"stop epochs":parameter_epoch}
+                    for key,value in base_parameter.items():
+                        score_dict[key] = value
+                    scores_list.append(score_dict)
+            elif base_parameter['model'].startswith('Neural'):
+
+                pass
+        df = pd.DataFrame(scores_list)
+        # if not os.path.exists(output_files):
+        #     os.makedirs(output_files)
+        df.to_csv(output_files)
