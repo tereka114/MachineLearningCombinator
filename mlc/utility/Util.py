@@ -123,6 +123,18 @@ def model_select(parameter):
 	elif model_name == 'KNN':
 		return KNeighborsClassifier(n_neighbors=int(parameter['n_neighbors']))
 
+def model_prediction_by_problem(clf,x,model_name,problem_type):
+	if problem_type == "classification":
+	    valid_predict = clf.predict_proba(x)
+	elif problem_type == "regression":
+	    valid_predict = clf.predict(x)
+	else:
+	    if model_name == "XGBREGLOGISTIC":
+	        valid_predict = clf.predict_proba(x)
+	    else:
+	        valid_predict = clf.predict_proba(x)[:, 1]
+	return valid_predict
+
 def genIndexKFold(x,times):
 	skf = KFold(n=len(x),n_folds=times,shuffle=True)
 	return skf

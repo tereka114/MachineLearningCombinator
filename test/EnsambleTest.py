@@ -1,8 +1,8 @@
 import unittest
 from sklearn.datasets import load_digits, load_diabetes
 from sklearn.cross_validation import train_test_split
-import mlc.layer.ensembler
 import os
+import mlc.ensamble.ensamble
 
 class EnsambleTest(unittest.TestCase):
 	def make_data_set(self):
@@ -50,6 +50,46 @@ class EnsambleTest(unittest.TestCase):
 		stacking_regression.stacking(train_x=data,train_y=label,train_ids=range(len(data)),test_ids=range(len(data)),test_x=data,parameter=parameter,
 		epochs=3,n_folds=10,isTrain=False,id_name="Id",scoreName="predict",output_dir="datas/stacking-1",pred_name="Score",evaluation_name="")
 
+	def test_ensamble_prediction(self):
+		x,y = self.make_data_set()
+		parameters = [{
+						"colsample_bytree": 0.7,
+						"min_child_weight": 1,
+						"num_round": 10,
+						"subsample": 0.9,
+						"eta": 0.02,
+						"max_depth": 10,
+						"model": "XGBREGLINEAR",
+						"objective": "reg:linear",
+						"seed":771
+					},
+					{
+											"colsample_bytree": 0.8,
+											"min_child_weight": 1,
+											"num_round": 10,
+											"subsample": 0.9,
+											"eta": 0.02,
+											"max_depth": 10,
+											"model": "XGBREGLINEAR",
+											"objective": "reg:linear",
+											"seed":7771
+										},
+										{
+																"colsample_bytree": 0.9,
+																"min_child_weight": 1,
+																"num_round": 10,
+																"subsample": 0.9,
+																"eta": 0.02,
+																"max_depth": 10,
+																"model": "XGBREGLINEAR",
+																"objective": "reg:linear",
+																"seed":71
+															}]
+
+
+		predictor = mlc.ensamble.ensamble.EnsamblePredictor()
+		predictor.ensamble_fit(x,y,3,1,parameters,"rmsle",out_tmp_dir="ensamble_tmp")
+
 	def test_blending_binary_classification(self):
 		pass
 
@@ -57,6 +97,51 @@ class EnsambleTest(unittest.TestCase):
 		pass
 
 	def blending_regression_parameter(self):
+		return [
+				{
+					"parameter":{
+						"colsample_bytree": 0.7,
+						"min_child_weight": 1,
+						"num_round": 3000,
+						"subsample": 0.9,
+						"eta": 0.02,
+						"max_depth": 200,
+						"model": "XGBREGLINEAR",
+						"objective": "reg:linear",
+						"seed":771
+					},
+					"data":"data"
+				},
+				{
+					"parameter":{
+						"colsample_bytree": 0.7,
+						"min_child_weight": 1,
+						"num_round": 3000,
+						"subsample": 0.9,
+						"eta": 0.02,
+						"max_depth": 200,
+						"model": "XGBREGLINEAR",
+						"objective": "reg:linear",
+						"seed":71
+					},
+					"data":"data"
+				},
+				{
+					"parameter":{
+						"colsample_bytree": 0.7,
+						"min_child_weight": 1,
+						"num_round": 3000,
+						"subsample": 0.9,
+						"eta": 0.02,
+						"max_depth": 200,
+						"model": "XGBREGLINEAR",
+						"objective": "count:poisson",
+						"seed":771
+					},
+					"data":"data"
+				}
+			]
+	def ensamble_parameters(self):
 		return [
 				{
 					"parameter":{
