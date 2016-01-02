@@ -100,7 +100,7 @@ def built_dagcnns(input_shape,n_filter=64,n_class=100,n_conv=5):
 
 	layer_names = []
 	#this is all layer function
-	
+
 	for i in xrange(n_conv-1):
 		conv_name = "conv{}".format(i)
 		activate_name = "activate{}".format(i)
@@ -258,7 +258,6 @@ def get_model(input_shape, nb_conv2, nb_conv3, nb_conv4, nb_conv5, nb_outputs):
 def residual_block(input_shape):
 	g = Graph()
 	g.add_input("input",input_shape)
-	g.add_node(,"")
 
 def create_50_layer(input_shape, nb_outputs):
     print "create model"
