@@ -9,6 +9,7 @@ import numpy as np
 from ..model.XGBoost import XGBoostRegressor,XGBoostClassifier
 from ..model.ChainerNeuralNetwork import ChainerNeuralNetworkModel,ChainerNeuralNetwork
 from ..model.LasagneNeuralNetwork import NeuralNetwork
+from ..model.keras_nn import Keras3LayerNeuralNetwork
 from sklearn.cross_validation import KFold,StratifiedKFold
 from sklearn.neighbors import KNeighborsClassifier
 import os
@@ -122,6 +123,20 @@ def model_select(parameter):
 		return NeuralNetwork(epochs=int(parameter['epochs']),problem_type="classification",dropout_layer=parameter['dropout_layer'],layer_number=parameter['layer_number'])
 	elif model_name == 'KNN':
 		return KNeighborsClassifier(n_neighbors=int(parameter['n_neighbors']))
+	elif model_name == "Keras3NN":
+		return Keras3LayerNeuralNetwork(
+			input_dim=parameter["input_dim"],
+			layer1=int(parameter["layer1"]),
+			layer2=int(parameter["layer2"]),
+			layer3=int(parameter["layer3"]),
+			nb_classes=parameter["nb_classes"],
+			dropout1=parameter["dropout1"],
+			dropout2=parameter["dropout2"],
+			dropout3=parameter["dropout3"],
+			epochs=int(parameter['epochs']),
+			batch_size=parameter["batch_size"],
+			loss_function=parameter["loss_function"]
+		)
 
 def model_prediction_by_problem(clf,x,model_name,problem_type):
 	if problem_type == "classification":

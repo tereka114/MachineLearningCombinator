@@ -22,7 +22,7 @@ class Optimization(object):
     def __init__(self):
         pass
 
-    def cross_validation_optimize(self, x, y, feature_name, runs=1, kfolds=5, problem_type="regression", isOverWrite=False):
+    def cross_validation_optimize(self, x, y,runs=1, kfolds=5, problem_type="regression"):
         kfold_list = []
         for run in xrange(runs):
             random_seed = 2015 + 1000 * (run + 1)
@@ -33,7 +33,7 @@ class Optimization(object):
                     n=len(x), n_folds=kfolds, shuffle=True, random_state=random_seed)
             elif problem_type == "classification" or problem_type == "binary_classification":
                 kfold_indexs = cross_validation.StratifiedKFold(
-                    labels=y, n_folds=kfolds, shuffle=True, random_state=random_seed)
+                    y, n_folds=kfolds, shuffle=True, random_state=random_seed)
             kfold_list.append(kfold_indexs)
         return kfold_list
 
@@ -41,7 +41,7 @@ class Optimization(object):
         feature_name="feature_name", evaluate_function_name="rmsle", problem_type="regression", isWriteCsv=False, 
         isBagging=False, id_column_name="ids", ids=None, prediction_column_name="prediction", isOverWrite=False,label_convert_type="normal"):
         kf_list = self.cross_validation_optimize(
-            x, y, feature_name, runs, kfolds, problem_type, isOverWrite)
+            x, y,runs, kfolds, problem_type)
 
         model = parameter['model']
         trials = Trials()
@@ -121,6 +121,10 @@ class Optimization(object):
                 logging.info("runs:{} kfold:{} model:{} train index length:{} test index length:{}".format(
                     str(run), str(kfold), model_name, len(train_index), len(valid_index)))
 
+                save_path = "./{}/Runs{}/KFold{}".format(feature_name,run,kfold)
+                if not os.path.exists(save_path):
+                    os.makedirs(save_path)
+
                 kfold_train_x, kfold_train_y = x[train_index], y[train_index]
                 kfold_valid_x, kfold_valid_y = x[valid_index], y[valid_index]
 
@@ -129,9 +133,8 @@ class Optimization(object):
 
                 clf = model_select(parameter)
                 clf.fit(kfold_train_x, self.labeled_preprocess(kfold_train_y,label_convert_type))
-                model_prediction_by_problem(clf,kfold_valid_x,model_name,problem_type)
 
-                valid_predict = clf.predict(kfold_valid_x)
+                valid_predict = model_prediction_by_problem(clf,kfold_valid_x,model_name,problem_type)
                 valid_predict = self.labeled_after_process(valid_predict, label_convert_type)
                 # evaluation
                 score = evaluate_function(kfold_valid_y,valid_predict,evaluate_function_name)
@@ -141,6 +144,15 @@ class Optimization(object):
                 logging.info("score:{}".format(score))
                 kfold += 1
 
+                if problem_type == "regression" or problem_type == "binary_classification":
+                    prediction = clf.predict(test_x)
+                    prediction = self.labeled_after_process(prediction, label_convert_type)
+                    output = pd.DataFrame(
+                        {id_column_name: valid_index, prediction_column_name: valid_predict})
+                    valid_csv = "{}/{}_valid_{}.csv".format(save_path,model_name,trial_counter)
+                    output.to_csv(valid_csv, index=False)
+                    #output.to_csv(submission_file_path, index=False)
+
         scores_mean = np.mean(scores)
         scores_valid = np.std(scores)
 
@@ -149,28 +161,22 @@ class Optimization(object):
         print "mean_score:{}   std_score:{}".format(str(scores_mean), str(scores_valid))
         logging.info("start all data prediction")
 
-        """
-        if you want to write the parameter.
-        you should 
-        """
-
         clf = model_select(parameter)
         y = self.labeled_preprocess(y, label_convert_type)
         clf.fit(x, y)
 
-        single_prediction_savedir = "./submission"
+        single_prediction_savedir = "./submission/{}/{}".format(feature_name,model_name)
         if not os.path.exists(single_prediction_savedir):
             os.makedirs(single_prediction_savedir)
 
-        submission_file = "submission_{}_{}_{}.csv".format(
-            feature_name, model_name, str(trial_counter))
+        submission_file = "submission_{}.csv".format(str(trial_counter))
 
         submission_file_path = os.path.join(
             single_prediction_savedir, submission_file)
 
         prediction = None
 
-        if problem_type == "regression":
+        if problem_type == "regression" or problem_type == "binary_classification":
             prediction = clf.predict(test_x)
             prediction = self.labeled_after_process(prediction, label_convert_type)
             output = pd.DataFrame(
@@ -201,14 +207,15 @@ class OptimizeCrossValidation(object):
     def __init__(self):
         pass
 
-    def optimize(self,x,y,kfolds,base_parameter,parameter_grid_dict,times,evaluate_function_name,problem_type,output_files,ntree_limits=[0]):
+    def optimize(self,x=None,y=None,x_test=None,kfolds=None,base_parameter=None,parameter_grid_dict=None,
+        times=None,evaluate_function_name=None,problem_type=None,output_files=None,bagging_times=None,response_function=None):
         scores = []
         kfold = cross_validation.KFold(
             n=len(x), n_folds=kfolds, shuffle=True, random_state=71)
 
         for params in ParameterGrid(parameter_grid_dict):
-
             base_parameter['seed'] = 71
+            model_name = base_parameter['model']
             for key,value in params.items():
                 base_parameter[key] = value
 
@@ -218,41 +225,58 @@ class OptimizeCrossValidation(object):
             count = 1
             for time in xrange(times):
                 for index,(train_index,test_index) in enumerate(kfold):
-                    for ntree_limit in ntree_limits:
-                        x_train,x_valid = x[train_index],x[test_index]
-                        y_train,y_valid = y[train_index],y[test_index]
+                    x_train,x_valid = x[train_index],x[test_index]
+                    y_train,y_valid = y[train_index],y[test_index]
 
-                        clf = model_select(base_parameter)
-                        clf.fit(x_train,y_train)
+                    clf = model_select(base_parameter)
+                    clf.fit(x_train,y_train)
 
-                        train_prediction,valid_prediction = None,None
+                    train_prediction,valid_prediction = None,None
 
-                        train_prediction = model_prediction_by_problem(clf,x_train,model_name,problem_type)
-                        valid_prediction = model_prediction_by_problem(clf,x_valid,model_name,problem_type)
+                    train_prediction = model_prediction_by_problem(clf,x_train,model_name,problem_type)
+                    valid_prediction = model_prediction_by_problem(clf,x_valid,model_name,problem_type)
 
-                        train_score = evaluate_function(y_train, train_prediction,evaluate_function_name)
-                        test_score = evaluate_function(y_valid, valid_prediction,evaluate_function_name)
+                    if not response_function == None:
+                        train_prediction = response_function(train_prediction)
+                        valid_prediction = response_function(valid_prediction)
 
-                        total_train_evaluation += train_score
-                        total_test_evaluation += test_score
-                        train_score_avg = total_train_evaluation / (time + 1)
-                        test_score_avg = total_test_evaluation / (time + 1)
+                    train_score = evaluate_function(y_train, train_prediction,evaluate_function_name)
+                    test_score = evaluate_function(y_valid, valid_prediction,evaluate_function_name)
 
-                        score_dict = {
-                            "data index":index,
-                            "train score":train_score,
-                            "test score":test_score,
-                            "train score average":train_score_avg,
-                            "test score average":test_score_avg
-                        }
+                    total_train_evaluation += train_score
+                    total_test_evaluation += test_score
+                    train_score_avg = total_train_evaluation / (time + 1)
+                    test_score_avg = total_test_evaluation / (time + 1)
 
-                        for key,value in base_parameter.items():
-                            score_dict[key] = value
-                        scores.append(score_dict)
+                    score_dict = {
+                        "data index":index,
+                        "train score":train_score,
+                        "test score":test_score,
+                        "train score average":train_score_avg,
+                        "test score average":test_score_avg
+                    }
 
-                        count += 1
+                    for key,value in base_parameter.items():
+                        score_dict[key] = value
+                    scores.append(score_dict)
 
-                        base_parameter['seed'] = base_parameter['seed'] + 100
+                    count += 1
+
+                    base_parameter['seed'] = base_parameter['seed'] + 100
+            base_parameter['seed'] = 71
+
+            if not x_test == None: 
+                bagging_result = np.zeros((bagging_times,len(y_train)))
+                for time in xrange(bagging_times):
+                    clf = model_select(base_parameter)
+                    clf.fit(x,y_train)
+                    test_prediction = model_prediction_by_problem(clf,x_test,model_name,problem_type)
+
+                    if not response_function == None:
+                        test_prediction = response_function(train_prediction)
+                    bagging_result[time] = test_prediction
+                pd.DataFrame()
+
         df = pd.DataFrame(scores)
         df.to_csv(output_files)
 
@@ -284,11 +308,11 @@ class OptimizeEpochsValidation(object):
                         valid_prediction = clf.predict(x_valid,parameter_epoch)
                     else:
                         if base_parameter['model'] == "XGBREGLOGISTIC":
-                            train_prediction = self.clf.predict_proba(x_train)
-                            valid_prediction = self.clf.predict_proba(x_valid)
+                            train_prediction = self.clf.predict_proba(x_train,parameter_epoch)
+                            valid_prediction = self.clf.predict_proba(x_valid,parameter_epoch)
                         else:
-                            train_prediction = self.clf.predict_proba(x_train)[:, 1]
-                            valid_prediction = self.clf.predict_proba(x_valid)[:, 1]                     
+                            train_prediction = self.clf.predict_proba(x_train,parameter_epoch)[:, 1]
+                            valid_prediction = self.clf.predict_proba(x_valid,parameter_epoch)[:, 1]                     
                     train_score = evaluate_function(y_train, train_prediction,evaluate_function_name)
                     test_score = evaluate_function(y_valid, valid_prediction,evaluate_function_name)
 
@@ -296,9 +320,6 @@ class OptimizeEpochsValidation(object):
                     for key,value in base_parameter.items():
                         score_dict[key] = value
                     scores_list.append(score_dict)
-            elif base_parameter['model'].startswith('Neural'):
-
-                pass
         df = pd.DataFrame(scores_list)
         # if not os.path.exists(output_files):
         #     os.makedirs(output_files)
